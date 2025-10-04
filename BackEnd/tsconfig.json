@@ -10,7 +10,7 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "verbatimModuleSyntax": false, // or remove this line
-    "target": "ES2023",
+    "target": "ES2022",
     "types": [],
     // For nodejs:
     // "lib": ["esnext"],
@@ -55,7 +55,11 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@BackEnd/sharedTypes": ["../sharedTypes/dist"]
+      "@BackEnd/sharedTypes": [
+        "../sharedTypes/src/index.js", // or .d.ts
+        "../sharedTypes/src"
+      ],
+      "@BackEnd/*": ["./src/*"]
     }
   }
 }

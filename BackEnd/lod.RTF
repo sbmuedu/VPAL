@@ -1,0 +1,850 @@
+
+> backend@1.0.0 build
+> nest build
+
+[1m[31mERROR[39m[22m in [1m./src/auth/auth.service.ts:36:48[39m[22m
+[1mTS2769: No overload matches this call.
+  Overload 1 of 2, '(password: string, hash: string): Promise<boolean>', gave the following [1m[31merror[39m[22m[1m.
+    Argument of type 'string | null' is not assignable to parameter of type 'string'.
+      Type 'null' is not assignable to type 'string'.
+  Overload 2 of 2, '(password: string, hash: string, callback?: Callback<boolean> | undefined, progressCallback?: ProgressCallback | undefined): void', gave the following [1m[31merror[39m[22m[1m.
+    Argument of type 'string | null' is not assignable to parameter of type 'string'.
+      Type 'null' is not assignable to type 'string'.
+    34 |     });
+    35 |
+  > 36 |     if (user && await bcrypt.compare(password, user.password)) {
+       |                                                ^^^^^^^^^^^^^
+    37 |       // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    38 |       const { password: _, ...result } = user;
+    39 |       return result;[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/auth/auth.service.ts:39:7[39m[22m
+[1mTS2322: Type '{ institution: { id: string; isActive: boolean; createdAt: Date; name: string; domain: string | null; } | null; email: string; firstName: string; lastName: string; role: UserRole; ... 9 more ...; lastLoginAt: Date | null; }' is not assignable to type 'Omit<User, "password">'.
+  Types of property 'role' are incompatible.
+    Type 'import("/Users/rezashahghadami/Desktop/work/FullCode/EMR/BackEnd/node_modules/.prisma/client/index").$Enums.UserRole' is not assignable to type 'import("/Users/rezashahghadami/Desktop/work/FullCode/EMR/sharedTypes/src/database").UserRole'.
+      Type '"STUDENT"' is not assignable to type 'UserRole'.
+    37 |       // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    38 |       const { password: _, ...result } = user;
+  > 39 |       return result;
+       |       ^^^^^^
+    40 |     }
+    41 |
+    42 |     throw new UnauthorizedException('[1m[31mInvalid[39m[22m[1m credentials');[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/auth/auth.service.ts:76:7[39m[22m
+[1mTS2375: Type '{ email: string; password: string; institutionId: string | undefined; firstName: string; lastName: string; role: UserRole; specialization?: string; licenseNumber?: string; }' is not assignable to type '(Without<UserCreateInput, UserUncheckedCreateInput> & UserUncheckedCreateInput) | (Without<...> & UserCreateInput)' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ email: string; password: string; institutionId: string | undefined; firstName: string; lastName: string; role: UserRole; specialization?: string; licenseNumber?: string; }' is not assignable to type 'Without<UserUncheckedCreateInput, UserCreateInput> & UserCreateInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Type '{ email: string; password: string; institutionId: string | undefined; firstName: string; lastName: string; role: UserRole; specialization?: string; licenseNumber?: string; }' is not assignable to type 'Without<UserUncheckedCreateInput, UserCreateInput>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Types of property 'institutionId' are incompatible.
+        Type 'string | undefined' is not assignable to type 'never'.
+          Type 'undefined' is not assignable to type 'never'.
+    74 |     // Create user
+    75 |     const user = await this.prisma.user.create({
+  > 76 |       data: {
+       |       ^^^^
+    77 |         ...userData,
+    78 |         email,
+    79 |         password: hashedPassword,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/auth/auth.service.ts:86:67[39m[22m
+[1mTS2345: Argument of type 'import("/Users/rezashahghadami/Desktop/work/FullCode/EMR/BackEnd/node_modules/.prisma/client/index").$Enums.UserRole' is not assignable to parameter of type 'import("/Users/rezashahghadami/Desktop/work/FullCode/EMR/sharedTypes/src/database").UserRole'.
+  Type '"STUDENT"' is not assignable to type 'UserRole'.
+    84 |
+    85 |     // Generate tokens
+  > 86 |     const tokens = await this.generateTokens(user.id, user.email, user.role);
+       |                                                                   ^^^^^^^^^
+    87 |
+    88 |     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    89 |     const { password: _, ...userWithoutPassword } = user;[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/auth/auth.service.ts:92:7[39m[22m
+[1mTS2322: Type '{ email: string; firstName: string; lastName: string; role: UserRole; specialization: string | null; licenseNumber: string | null; id: string; institutionId: string | null; authProvider: AuthenticationProvider; ... 4 more ...; lastLoginAt: Date | null; }' is not assignable to type 'User'.
+  Types of property 'role' are incompatible.
+    Type 'import("/Users/rezashahghadami/Desktop/work/FullCode/EMR/BackEnd/node_modules/.prisma/client/index").$Enums.UserRole' is not assignable to type 'import("/Users/rezashahghadami/Desktop/work/FullCode/EMR/sharedTypes/src/database").UserRole'.
+      Type '"STUDENT"' is not assignable to type 'UserRole'.
+    90 |     
+    91 |     return {
+  > 92 |       user: userWithoutPassword,
+       |       ^^^^
+    93 |       ...tokens,
+    94 |     };
+    95 |   }[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/auth/auth.service.ts:210:58[39m[22m
+[1mTS2769: No overload matches this call.
+  Overload 1 of 2, '(password: string, hash: string): Promise<boolean>', gave the following [1m[31merror[39m[22m[1m.
+    Argument of type 'string | null' is not assignable to parameter of type 'string'.
+      Type 'null' is not assignable to type 'string'.
+  Overload 2 of 2, '(password: string, hash: string, callback?: Callback<boolean> | undefined, progressCallback?: ProgressCallback | undefined): void', gave the following [1m[31merror[39m[22m[1m.
+    Argument of type 'string | null' is not assignable to parameter of type 'string'.
+      Type 'null' is not assignable to type 'string'.
+    208 |     });
+    209 |
+  > 210 |     if (!user || !(await bcrypt.compare(currentPassword, user.password))) {
+        |                                                          ^^^^^^^^^^^^^
+    211 |       throw new UnauthorizedException('Current password is incorrect');
+    212 |     }
+    213 |[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/medical/medical.controller.ts:75:32[39m[22m
+[1mTS2339: Property 'details' does not exist on type 'InterventionEvaluationDto'.
+    73 |       {
+    74 |         type: evaluationDto.type,
+  > 75 |         details: evaluationDto.details,
+       |                                ^^^^^^^
+    76 |         timing: new Date(evaluationDto.timing),
+    77 |       },
+    78 |       evaluationDto.patientState,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/medical/medical.controller.ts:76:40[39m[22m
+[1mTS2339: Property 'timing' does not exist on type 'InterventionEvaluationDto'.
+    74 |         type: evaluationDto.type,
+    75 |         details: evaluationDto.details,
+  > 76 |         timing: new Date(evaluationDto.timing),
+       |                                        ^^^^^^
+    77 |       },
+    78 |       evaluationDto.patientState,
+    79 |     );[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/medical/medical.controller.ts:78:7[39m[22m
+[1mTS2554: Expected 2 arguments, but got 3.
+    76 |         timing: new Date(evaluationDto.timing),
+    77 |       },
+  > 78 |       evaluationDto.patientState,
+       |       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    79 |     );
+    80 |   }
+    81 |[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/medical/medical.controller.ts:78:21[39m[22m
+[1mTS2339: Property 'patientState' does not exist on type 'InterventionEvaluationDto'.
+    76 |         timing: new Date(evaluationDto.timing),
+    77 |       },
+  > 78 |       evaluationDto.patientState,
+       |                     ^^^^^^^^^^^^
+    79 |     );
+    80 |   }
+    81 |[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/medical/medical.controller.ts:95:7[39m[22m
+[1mTS2554: Expected 3 arguments, but got 4.
+    93 |       predictionDto.patientState,
+    94 |       predictionDto.dosage,
+  > 95 |       predictionDto.route,
+       |       ^^^^^^^^^^^^^^^^^^^
+    96 |     );
+    97 |   }
+    98 |[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/medical/medical.controller.ts:173:7[39m[22m
+[1mTS2554: Expected 3 arguments, but got 4.
+    171 |       complicationData.type,
+    172 |       complicationData.severity,
+  > 173 |       complicationData.timing ? new Date(complicationData.timing) : undefined,
+        |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    174 |     );
+    175 |   }
+    176 |   /**[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/medical/medical.service.ts:275:7[39m[22m
+[1mTS2322: Type '{ sessionId: string; studentId: string; drugId: any; dosage: any; route: any; frequency: any; indication: any; virtualOrderTime: Date; status: "PENDING"; }' is not assignable to type '(Without<MedicationOrderCreateInput, MedicationOrderUncheckedCreateInput> & MedicationOrderUncheckedCreateInput) | (Without<...> & MedicationOrderCreateInput)'.
+  Type '{ sessionId: string; studentId: string; drugId: any; dosage: any; route: any; frequency: any; indication: any; virtualOrderTime: Date; status: "PENDING"; }' is not assignable to type 'Without<MedicationOrderCreateInput, MedicationOrderUncheckedCreateInput> & MedicationOrderUncheckedCreateInput'.
+    Property 'prescribedBy' is missing in type '{ sessionId: string; studentId: string; drugId: any; dosage: any; route: any; frequency: any; indication: any; virtualOrderTime: Date; status: "PENDING"; }' but [1m[33mrequired[39m[22m[1m in type 'MedicationOrderUncheckedCreateInput'.
+    273 |   async createMedicationOrder(sessionId: string, studentId: string, orderData: any) {
+    274 |     return this.prisma.medicationOrder.create({
+  > 275 |       data: {
+        |       ^^^^
+    276 |         sessionId,
+    277 |         studentId,
+    278 |         drugId: orderData.drugId,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/dto/create-lab-order.dto.ts:10:25[39m[22m
+[1mTS2305: Module '"@BackEnd/sharedTypes"' has no exported member 'OrderPriority'.
+     8 |   IsBoolean
+     9 | } from 'class-validator';
+  > 10 | import { EventPriority, OrderPriority } from '@BackEnd/sharedTypes';
+       |                         ^^^^^^^^^^^^^
+    11 |
+    12 | export class CreateLabOrderDto {
+    13 |   @IsString()[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/dto/create-medication-order.dto.ts:13:4[39m[22m
+[1mTS2305: Module '"@BackEnd/sharedTypes"' has no exported member 'MedicationPriority'.
+    11 | import { Type } from 'class-transformer';
+    12 | import { 
+  > 13 |    MedicationPriority, 
+       |    ^^^^^^^^^^^^^^^^^^
+    14 |   AdministrationRoute, 
+    15 |   Frequency 
+    16 | } from '@BackEnd/sharedTypes';[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/dto/create-medication-order.dto.ts:14:3[39m[22m
+[1mTS2305: Module '"@BackEnd/sharedTypes"' has no exported member 'AdministrationRoute'.
+    12 | import { 
+    13 |    MedicationPriority, 
+  > 14 |   AdministrationRoute, 
+       |   ^^^^^^^^^^^^^^^^^^^
+    15 |   Frequency 
+    16 | } from '@BackEnd/sharedTypes';
+    17 |[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/dto/create-medication-order.dto.ts:15:3[39m[22m
+[1mTS2305: Module '"@BackEnd/sharedTypes"' has no exported member 'Frequency'.
+    13 |    MedicationPriority, 
+    14 |   AdministrationRoute, 
+  > 15 |   Frequency 
+       |   ^^^^^^^^^
+    16 | } from '@BackEnd/sharedTypes';
+    17 |
+    18 | export class MedicationDosageDto {[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/dto/create-procedure-order.dto.ts:10:10[39m[22m
+[1mTS2305: Module '"@BackEnd/sharedTypes"' has no exported member 'OrderPriority'.
+     8 |   IsBoolean 
+     9 | } from 'class-validator';
+  > 10 | import { OrderPriority } from '@BackEnd/sharedTypes';
+       |          ^^^^^^^^^^^^^
+    11 |
+    12 | export class CreateProcedureOrderDto {
+    13 |   @IsString()[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/dto/order-filters.dto.ts:8:10[39m[22m
+[1mTS2305: Module '"sharedtypes/dist"' has no exported member 'OrderStatus'.
+     6 |   IsDateString 
+     7 | } from 'class-validator';
+  >  8 | import { OrderStatus, OrderPriority } from 'sharedtypes/dist';
+       |          ^^^^^^^^^^^
+     9 | import { Type } from 'class-transformer';
+    10 |
+    11 | export class OrderFiltersDto {[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/dto/order-filters.dto.ts:8:23[39m[22m
+[1mTS2305: Module '"sharedtypes/dist"' has no exported member 'OrderPriority'.
+     6 |   IsDateString 
+     7 | } from 'class-validator';
+  >  8 | import { OrderStatus, OrderPriority } from 'sharedtypes/dist';
+       |                       ^^^^^^^^^^^^^
+     9 | import { Type } from 'class-transformer';
+    10 |
+    11 | export class OrderFiltersDto {[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/dto/update-order-status.dto.ts:9:10[39m[22m
+[1mTS2305: Module '"@BackEnd/sharedTypes"' has no exported member 'OrderStatus'.
+     7 |   IsArray 
+     8 | } from 'class-validator';
+  >  9 | import { OrderStatus } from '@BackEnd/sharedTypes';
+       |          ^^^^^^^^^^^
+    10 |
+    11 | export class UpdateOrderStatusDto {
+    12 |   @IsEnum(OrderStatus)[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:17:3[39m[22m
+[1mTS2305: Module '"sharedtypes/dist"' has no exported member 'OrderStatus'.
+    15 | } from './dto';
+    16 | import {
+  > 17 |   OrderStatus,
+       |   ^^^^^^^^^^^
+    18 |   UserRole,
+    19 |   MedicationOrder,
+    20 |   LabOrder,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:67:9[39m[22m
+[1mTS2561: Object literal may only specify known properties, but 'prescribedById' does not exist in type 'Without<MedicationOrderCreateInput, MedicationOrderUncheckedCreateInput> & MedicationOrderUncheckedCreateInput'. [1m[32mDid you mean to write 'prescribedBy'?[39m[22m[1m
+    65 |         sessionId,
+    66 |         drugId: createOrderDto.drugId,
+  > 67 |         prescribedById: userId,
+       |         ^^^^^^^^^^^^^^
+    68 |         dosage: createOrderDto.dosage.toString(),
+    69 |         frequency: createOrderDto.frequency,
+    70 |         route: createOrderDto.route,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:80:9[39m[22m
+[1mTS2353: Object literal may only specify known properties, and 'prescribedBy' does not exist in type 'MedicationOrderInclude<DefaultArgs>'.
+    78 |       include: {
+    79 |         drug: true,
+  > 80 |         prescribedBy: {
+       |         ^^^^^^^^^^^^
+    81 |           select: {
+    82 |             id: true,
+    83 |             firstName: true,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:108:12[39m[22m
+[1mTS2352: Conversion of type '{ id: string; studentId: string; status: ActionStatus; sessionId: string; response: JsonValue; prescribedBy: string; drugId: string; dosage: string; route: string; frequency: string; ... 10 more ...; documentationScore: number | null; }' to type 'MedicationOrder' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property 'drug' is missing in type '{ id: string; studentId: string; status: ActionStatus; sessionId: string; response: JsonValue; prescribedBy: string; drugId: string; dosage: string; route: string; frequency: string; ... 10 more ...; documentationScore: number | null; }' but [1m[33mrequired[39m[22m[1m in type 'MedicationOrder'.
+    106 |     await this.scheduleMedicationEvents(sessionId, order);
+    107 |
+  > 108 |     return order as MedicationOrder;
+        |            ^^^^^^^^^^^^^^^^^^^^^^^^
+    109 |   }
+    110 |
+    111 |   /**[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:135:9[39m[22m
+[1mTS2353: Object literal may only specify known properties, and 'orderedById' does not exist in type 'Without<LabOrderCreateInput, LabOrderUncheckedCreateInput> & LabOrderUncheckedCreateInput'.
+    133 |         sessionId,
+    134 |         testId: createOrderDto.testId,
+  > 135 |         orderedById: userId,
+        |         ^^^^^^^^^^^
+    136 |         priority: createOrderDto.priority,
+    137 |         status: OrderStatus.PENDING,
+    138 |         notes: createOrderDto.notes,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:140:38[39m[22m
+[1mTS2339: Property 'typicalTurnaroundTime' does not exist on type '{ description: string; id: string; isActive: boolean; createdAt: Date; name: string; validatedByExpertId: string | null; category: string; code: string | null; specimenTypes: string[]; ... 6 more ...; requiresCollection: boolean; }'.
+    138 |         notes: createOrderDto.notes,
+    139 |         virtualTimeOrdered: session.currentVirtualTime,
+  > 140 |         expectedTurnaroundTime: test.typicalTurnaroundTime,
+        |                                      ^^^^^^^^^^^^^^^^^^^^^
+    141 |       },
+    142 |       include: {
+    143 |         test: true,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:144:9[39m[22m
+[1mTS2353: Object literal may only specify known properties, and 'orderedBy' does not exist in type 'LabOrderInclude<DefaultArgs>'.
+    142 |       include: {
+    143 |         test: true,
+  > 144 |         orderedBy: {
+        |         ^^^^^^^^^
+    145 |           select: {
+    146 |             id: true,
+    147 |             firstName: true,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:172:12[39m[22m
+[1mTS2352: Conversion of type '{ id: string; studentId: string; status: ActionStatus; sessionId: string; indication: string; orderTime: Date; virtualOrderTime: Date; appropriatenessScore: number | null; ... 10 more ...; interpretationScore: number | null; }' to type 'LabOrder' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property 'test' is missing in type '{ id: string; studentId: string; status: ActionStatus; sessionId: string; indication: string; orderTime: Date; virtualOrderTime: Date; appropriatenessScore: number | null; ... 10 more ...; interpretationScore: number | null; }' but [1m[33mrequired[39m[22m[1m in type 'LabOrder'.
+    170 |     );
+    171 |
+  > 172 |     return order as LabOrder;
+        |            ^^^^^^^^^^^^^^^^^
+    173 |   }
+    174 |
+    175 |   /**[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:199:9[39m[22m
+[1mTS2353: Object literal may only specify known properties, and 'orderedById' does not exist in type 'Without<ProcedureOrderCreateInput, ProcedureOrderUncheckedCreateInput> & ProcedureOrderUncheckedCreateInput'.
+    197 |         sessionId,
+    198 |         procedureId: createOrderDto.procedureId,
+  > 199 |         orderedById: userId,
+        |         ^^^^^^^^^^^
+    200 |         priority: createOrderDto.priority,
+    201 |         status: OrderStatus.PENDING,
+    202 |         instructions: createOrderDto.instructions,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:205:38[39m[22m
+[1mTS2339: Property 'typicalDuration' does not exist on type '{ description: string; id: string; isActive: boolean; createdAt: Date; name: string; validatedByExpertId: string | null; risks: string[]; complications: string[]; category: string; indications: string[]; ... 7 more ...; difficultyLevel: ScenarioDifficulty; }'.
+    203 |         scheduledTime: createOrderDto.scheduledTime,
+    204 |         virtualTimeScheduled: session.currentVirtualTime,
+  > 205 |         estimatedDuration: procedure.typicalDuration,
+        |                                      ^^^^^^^^^^^^^^^
+    206 |       },
+    207 |       include: {
+    208 |         procedure: true,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:209:9[39m[22m
+[1mTS2353: Object literal may only specify known properties, and 'orderedBy' does not exist in type 'ProcedureOrderInclude<DefaultArgs>'.
+    207 |       include: {
+    208 |         procedure: true,
+  > 209 |         orderedBy: {
+        |         ^^^^^^^^^
+    210 |           select: {
+    211 |             id: true,
+    212 |             firstName: true,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:288:13[39m[22m
+[1mTS2561: Object literal may only specify known properties, but 'administeredById' does not exist in type '(Without<MedicationOrderUpdateInput, MedicationOrderUncheckedUpdateInput> & MedicationOrderUncheckedUpdateInput) | (Without<...> & MedicationOrderUpdateInput)'. [1m[32mDid you mean to write 'administeredBy'?[39m[22m[1m
+    286 |           data: {
+    287 |             status: updateDto.status,
+  > 288 |             administeredById: updateDto.status === OrderStatus.COMPLETED ? userId : null,
+        |             ^^^^^^^^^^^^^^^^
+    289 |             administeredAt: updateDto.status === OrderStatus.COMPLETED ? new Date() : null,
+    290 |             notes: updateDto.notes,
+    291 |           },[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:306:13[39m[22m
+[1mTS2561: Object literal may only specify known properties, but 'collectedById' does not exist in type '(Without<LabOrderUpdateInput, LabOrderUncheckedUpdateInput> & LabOrderUncheckedUpdateInput) | (Without<...> & LabOrderUpdateInput)'. [1m[32mDid you mean to write 'collectedBy'?[39m[22m[1m
+    304 |           data: {
+    305 |             status: updateDto.status,
+  > 306 |             collectedById: updateDto.status === OrderStatus.COMPLETED ? userId : null,
+        |             ^^^^^^^^^^^^^
+    307 |             collectedAt: updateDto.status === OrderStatus.COMPLETED ? new Date() : null,
+    308 |             notes: updateDto.notes,
+    309 |           },[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:312:13[39m[22m
+[1mTS2353: Object literal may only specify known properties, and 'orderedBy' does not exist in type 'LabOrderInclude<DefaultArgs>'.
+    310 |           include: {
+    311 |             test: true,
+  > 312 |             orderedBy: true,
+        |             ^^^^^^^^^
+    313 |             collectedBy: true,
+    314 |           },
+    315 |         });[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:323:13[39m[22m
+[1mTS2561: Object literal may only specify known properties, but 'performedById' does not exist in type '(Without<ProcedureOrderUpdateInput, ProcedureOrderUncheckedUpdateInput> & ProcedureOrderUncheckedUpdateInput) | (Without<...> & ProcedureOrderUpdateInput)'. [1m[32mDid you mean to write 'performedBy'?[39m[22m[1m
+    321 |           data: {
+    322 |             status: updateDto.status,
+  > 323 |             performedById: updateDto.status === OrderStatus.COMPLETED ? userId : null,
+        |             ^^^^^^^^^^^^^
+    324 |             performedAt: updateDto.status === OrderStatus.COMPLETED ? new Date() : null,
+    325 |             notes: updateDto.notes,
+    326 |             findings: updateDto.findings,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:330:13[39m[22m
+[1mTS2353: Object literal may only specify known properties, and 'orderedBy' does not exist in type 'ProcedureOrderInclude<DefaultArgs>'.
+    328 |           include: {
+    329 |             procedure: true,
+  > 330 |             orderedBy: true,
+        |             ^^^^^^^^^
+    331 |             performedBy: true,
+    332 |           },
+    333 |         });[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:376:11[39m[22m
+[1mTS2353: Object literal may only specify known properties, and 'prescribedBy' does not exist in type 'MedicationOrderInclude<DefaultArgs>'.
+    374 |         include: {
+    375 |           drug: true,
+  > 376 |           prescribedBy: true,
+        |           ^^^^^^^^^^^^
+    377 |           administeredBy: true,
+    378 |         },
+    379 |         orderBy: { orderTime: 'desc' },[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:388:11[39m[22m
+[1mTS2353: Object literal may only specify known properties, and 'orderedBy' does not exist in type 'LabOrderInclude<DefaultArgs>'.
+    386 |         include: {
+    387 |           test: true,
+  > 388 |           orderedBy: true,
+        |           ^^^^^^^^^
+    389 |           collectedBy: true,
+    390 |         },
+    391 |         orderBy: { orderTime: 'desc' },[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:400:11[39m[22m
+[1mTS2353: Object literal may only specify known properties, and 'orderedBy' does not exist in type 'ProcedureOrderInclude<DefaultArgs>'.
+    398 |         include: {
+    399 |           procedure: true,
+  > 400 |           orderedBy: true,
+        |           ^^^^^^^^^
+    401 |           performedBy: true,
+    402 |         },
+    403 |         orderBy: { orderTime: 'desc' },[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:408:20[39m[22m
+[1mTS2352: Conversion of type '{ id: string; studentId: string; status: ActionStatus; sessionId: string; response: JsonValue; prescribedBy: string; drugId: string; dosage: string; route: string; frequency: string; ... 10 more ...; documentationScore: number | null; }[]' to type 'MedicationOrder[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property 'drug' is missing in type '{ id: string; studentId: string; status: ActionStatus; sessionId: string; response: JsonValue; prescribedBy: string; drugId: string; dosage: string; route: string; frequency: string; ... 10 more ...; documentationScore: number | null; }' but [1m[33mrequired[39m[22m[1m in type 'MedicationOrder'.
+    406 |
+    407 |     return {
+  > 408 |       medications: medications as MedicationOrder[],
+        |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    409 |       labs: labs as LabOrder[],
+    410 |       procedures: procedures as ProcedureOrder[],
+    411 |     };[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:409:13[39m[22m
+[1mTS2352: Conversion of type '{ id: string; studentId: string; status: ActionStatus; sessionId: string; indication: string; orderTime: Date; virtualOrderTime: Date; appropriatenessScore: number | null; ... 10 more ...; interpretationScore: number | null; }[]' to type 'LabOrder[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property 'test' is missing in type '{ id: string; studentId: string; status: ActionStatus; sessionId: string; indication: string; orderTime: Date; virtualOrderTime: Date; appropriatenessScore: number | null; ... 10 more ...; interpretationScore: number | null; }' but [1m[33mrequired[39m[22m[1m in type 'LabOrder'.
+    407 |     return {
+    408 |       medications: medications as MedicationOrder[],
+  > 409 |       labs: labs as LabOrder[],
+        |             ^^^^^^^^^^^^^^^^^^
+    410 |       procedures: procedures as ProcedureOrder[],
+    411 |     };
+    412 |   }[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/orders/orders.service.ts:446:9[39m[22m
+[1mTS2353: Object literal may only specify known properties, and 'virtualTimeScheduled' does not exist in type 'MedicationOrderWhereInput'.
+    444 |         sessionId,
+    445 |         status: OrderStatus.COMPLETED,
+  > 446 |         virtualTimeScheduled: {
+        |         ^^^^^^^^^^^^^^^^^^^^
+    447 |           gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
+    448 |         },
+    449 |       },[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/real-time/real-time.gateway.ts:9:35[39m[22m
+[1mTS7016: Could not find a declaration file for module 'ws'. '/Users/rezashahghadami/Desktop/work/FullCode/EMR/BackEnd/node_modules/ws/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/ws` if it exists or add a new declaration (.d.ts) file containing `declare module 'ws';`
+     7 |   OnGatewayDisconnect,
+     8 | } from '@nestjs/websockets';
+  >  9 | import { Server, WebSocket } from 'ws';
+       |                                   ^^^^
+    10 | import { RealTimeService } from './real-time.service';
+    11 | import { JwtService } from '@nestjs/jwt';
+    12 | import { SessionsService } from '../sessions/sessions.service';[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/real-time/real-time.service.ts:3:27[39m[22m
+[1mTS7016: Could not find a declaration file for module 'ws'. '/Users/rezashahghadami/Desktop/work/FullCode/EMR/BackEnd/node_modules/ws/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/ws` if it exists or add a new declaration (.d.ts) file containing `declare module 'ws';`
+    1 | // src/real-time/real-time.service.ts
+    2 | import { Injectable } from '@nestjs/common';
+  > 3 | import { WebSocket } from 'ws';
+      |                           ^^^^
+    4 | import { SessionsService } from '../sessions/sessions.service';
+    5 | import {
+    6 |   RealTimeMessageDto,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/scenarios/scenarios.service.ts:52:7[39m[22m
+[1mTS2375: Type '{ createdBy: string; competencyWeights: any; title: string; description: string; difficulty: ScenarioDifficulty; specialty: string; estimatedDuration: number; timeAccelerationRate?: number; ... 15 more ...; tags?: string[]; }' is not assignable to type '(Without<MedicalScenarioCreateInput, MedicalScenarioUncheckedCreateInput> & MedicalScenarioUncheckedCreateInput) | (Without<...> & MedicalScenarioCreateInput)' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ createdBy: string; competencyWeights: any; title: string; description: string; difficulty: ScenarioDifficulty; specialty: string; estimatedDuration: number; timeAccelerationRate?: number; ... 15 more ...; tags?: string[]; }' is not assignable to type 'Without<MedicalScenarioCreateInput, MedicalScenarioUncheckedCreateInput> & MedicalScenarioUncheckedCreateInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Type '{ createdBy: string; competencyWeights: any; title: string; description: string; difficulty: ScenarioDifficulty; specialty: string; estimatedDuration: number; timeAccelerationRate?: number; ... 15 more ...; tags?: string[]; }' is not assignable to type 'MedicalScenarioUncheckedCreateInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Types of property 'initialVitalSigns' are incompatible.
+        Type 'VitalSigns' is not assignable to type 'JsonNull | InputJsonValue'.
+          Type 'VitalSigns' is not assignable to type 'InputJsonObject'.
+            Index signature for type 'string' is missing in type 'VitalSigns'.
+    50 |
+    51 |     const scenario = await this.prisma.medicalScenario.create({
+  > 52 |       data: {
+       |       ^^^^
+    53 |         ...createScenarioDto,
+    54 |         createdBy: userId,
+    55 |         // Set default values if not provided[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/scenarios/scenarios.service.ts:76:5[39m[22m
+[1mTS2322: Type '{ description: string; title: string; id: string; institutionId: string | null; isActive: boolean; createdAt: Date; updatedAt: Date; tags: string[]; difficulty: ScenarioDifficulty; ... 23 more ...; createdBy: string; }' is not assignable to type 'MedicalScenario'.
+  Types of property 'difficulty' are incompatible.
+    Type 'import("/Users/rezashahghadami/Desktop/work/FullCode/EMR/BackEnd/node_modules/.prisma/client/index").$Enums.ScenarioDifficulty' is not assignable to type 'import("/Users/rezashahghadami/Desktop/work/FullCode/EMR/sharedTypes/dist/database").ScenarioDifficulty'.
+      Type '"BEGINNER"' is not assignable to type 'ScenarioDifficulty'.
+    74 |     });
+    75 |
+  > 76 |     return scenario; // as MedicalScenario;
+       |     ^^^^^^
+    77 |   }
+    78 |
+    79 |   /**[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/scenarios/scenarios.service.ts:125:18[39m[22m
+[1mTS2352: Conversion of type '({ institution: { id: string; isActive: boolean; createdAt: Date; name: string; domain: string | null; } | null; _count: { sessions: number; }; creator: { email: string; firstName: string; lastName: string; role: UserRole; id: string; }; } & { ...; })[]' to type 'MedicalScenario[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ institution: { id: string; isActive: boolean; createdAt: Date; name: string; domain: string | null; } | null; _count: { sessions: number; }; creator: { email: string; firstName: string; lastName: string; role: UserRole; id: string; }; } & { ...; }' is not comparable to type 'MedicalScenario'.
+    Types of property 'competencyWeights' are incompatible.
+      Type 'JsonValue' is not comparable to type 'CompetencyWeights'.
+        Type 'JsonValue[]' is missing the following properties from type 'CompetencyWeights': diagnostic, procedural, communication, professionalism, criticalThinking
+    123 |
+    124 |     return {
+  > 125 |       scenarios: scenarios as MedicalScenario[],
+        |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    126 |       total,
+    127 |       page: page ?? 1,
+    128 |       totalPages: Math.ceil(total / (limit ?? 4)),[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/scenarios/scenarios.service.ts:199:5[39m[22m
+[1mTS2322: Type '{ institution: { id: string; isActive: boolean; createdAt: Date; name: string; domain: string | null; } | null; _count: { sessions: number; }; validatedByExpert: { firstName: string; lastName: string; specialization: string | null; id: string; } | null; creator: { ...; }; sessions: { ...; }[]; } & { ...; }' is not assignable to type 'MedicalScenario'.
+  Types of property 'difficulty' are incompatible.
+    Type 'import("/Users/rezashahghadami/Desktop/work/FullCode/EMR/BackEnd/node_modules/.prisma/client/index").$Enums.ScenarioDifficulty' is not assignable to type 'import("/Users/rezashahghadami/Desktop/work/FullCode/EMR/sharedTypes/dist/database").ScenarioDifficulty'.
+      Type '"BEGINNER"' is not assignable to type 'ScenarioDifficulty'.
+    197 |     this.checkScenarioAccess(scenario, userId, userRole);
+    198 |
+  > 199 |     return scenario; // as MedicalScenario;
+        |     ^^^^^^
+    200 |   }
+    201 |
+    202 |   /**[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/scenarios/scenarios.service.ts:251:7[39m[22m
+[1mTS2375: Type '{ version: number; validatedByExpertId: null; validationDate: null; title?: string; description?: string; difficulty?: ScenarioDifficulty; specialty?: string; estimatedDuration?: number; ... 17 more ...; tags?: string[]; }' is not assignable to type '(Without<MedicalScenarioUpdateInput, MedicalScenarioUncheckedUpdateInput> & MedicalScenarioUncheckedUpdateInput) | (Without<...> & MedicalScenarioUpdateInput)' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ version: number; validatedByExpertId: null; validationDate: null; title?: string; description?: string; difficulty?: ScenarioDifficulty; specialty?: string; estimatedDuration?: number; ... 17 more ...; tags?: string[]; }' is not assignable to type 'Without<MedicalScenarioUpdateInput, MedicalScenarioUncheckedUpdateInput> & MedicalScenarioUncheckedUpdateInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Type '{ version: number; validatedByExpertId: null; validationDate: null; title?: string; description?: string; difficulty?: ScenarioDifficulty; specialty?: string; estimatedDuration?: number; ... 17 more ...; tags?: string[]; }' is not assignable to type 'MedicalScenarioUncheckedUpdateInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Types of property 'competencyWeights' are incompatible.
+        Type 'CompetencyWeights' is not assignable to type 'JsonNull | InputJsonValue'.
+          Type 'CompetencyWeights' is not assignable to type 'InputJsonObject'.
+            Index signature for type 'string' is missing in type 'CompetencyWeights'.
+    249 |     const updatedScenario = await this.prisma.medicalScenario.update({
+    250 |       where: { id },
+  > 251 |       data: {
+        |       ^^^^
+    252 |         ...updateScenarioDto,
+    253 |         version: scenario.version + 0.1, // Increment version
+    254 |         validatedByExpertId: null, // Reset validation if content changed[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/scenarios/scenarios.service.ts:271:12[39m[22m
+[1mTS2352: Conversion of type '{ description: string; title: string; id: string; institutionId: string | null; isActive: boolean; createdAt: Date; updatedAt: Date; tags: string[]; difficulty: ScenarioDifficulty; ... 23 more ...; createdBy: string; }' to type 'MedicalScenario' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Types of property 'competencyWeights' are incompatible.
+    Type 'JsonValue' is not comparable to type 'CompetencyWeights'.
+      Type 'JsonValue[]' is missing the following properties from type 'CompetencyWeights': diagnostic, procedural, communication, professionalism, criticalThinking
+    269 |     });
+    270 |
+  > 271 |     return updatedScenario as MedicalScenario;
+        |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    272 |   }
+    273 |
+    274 |   /**[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/scenarios/scenarios.service.ts:345:7[39m[22m
+[1mTS2375: Type '{ validatedByExpertId: string; validationDate: Date; validationNotes: string | undefined; }' is not assignable to type '(Without<MedicalScenarioUpdateInput, MedicalScenarioUncheckedUpdateInput> & MedicalScenarioUncheckedUpdateInput) | (Without<...> & MedicalScenarioUpdateInput)' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ validatedByExpertId: string; validationDate: Date; validationNotes: string | undefined; }' is not assignable to type 'Without<MedicalScenarioUpdateInput, MedicalScenarioUncheckedUpdateInput> & MedicalScenarioUncheckedUpdateInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Type '{ validatedByExpertId: string; validationDate: Date; validationNotes: string | undefined; }' is not assignable to type 'MedicalScenarioUncheckedUpdateInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Types of property 'validationNotes' are incompatible.
+        Type 'string | undefined' is not assignable to type 'string | NullableStringFieldUpdateOperationsInput | null'.
+          Type 'undefined' is not assignable to type 'string | NullableStringFieldUpdateOperationsInput | null'.
+    343 |     const validatedScenario = await this.prisma.medicalScenario.update({
+    344 |       where: { id },
+  > 345 |       data: {
+        |       ^^^^
+    346 |         validatedByExpertId: expertId,
+    347 |         validationDate: new Date(),
+    348 |         validationNotes: notes,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/scenarios/scenarios.service.ts:372:12[39m[22m
+[1mTS2352: Conversion of type '{ description: string; title: string; id: string; institutionId: string | null; isActive: boolean; createdAt: Date; updatedAt: Date; tags: string[]; difficulty: ScenarioDifficulty; ... 23 more ...; createdBy: string; }' to type 'MedicalScenario' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Types of property 'competencyWeights' are incompatible.
+    Type 'JsonValue' is not comparable to type 'CompetencyWeights'.
+      Type 'JsonValue[]' is missing the following properties from type 'CompetencyWeights': diagnostic, procedural, communication, professionalism, criticalThinking
+    370 |     });
+    371 |
+  > 372 |     return validatedScenario as MedicalScenario;
+        |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    373 |   }
+    374 |
+    375 |   /**[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.controller.ts:63:72[39m[22m
+[1mTS2554: Expected 2 arguments, but got 3.
+    61 |     @Request() req:CustomRequest,
+    62 |   ) {
+  > 63 |     return this.sessionsService.startSession(scenarioId, req.user!.id, startSessionDto);
+       |                                                                        ^^^^^^^^^^^^^^^
+    64 |   }
+    65 |
+    66 |   /**[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.controller.ts:101:53[39m[22m
+[1mTS2345: Argument of type 'FastForwardDto' is not assignable to parameter of type 'string'.
+     99 |     @Request() req:CustomRequest,
+    100 |   ) {
+  > 101 |     return this.sessionsService.fastForwardTime(id, fastForwardDto, req.user!.id);
+        |                                                     ^^^^^^^^^^^^^^
+    102 |   }
+    103 |
+    104 |   /**[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.controller.ts:120:56[39m[22m
+[1mTS2345: Argument of type 'PatientQuestionDto' is not assignable to parameter of type 'string'.
+    118 |     @Request() req:CustomRequest,
+    119 |   ) {
+  > 120 |     return this.sessionsService.askPatientQuestion(id, patientQuestionDto, req.user!.id);
+        |                                                        ^^^^^^^^^^^^^^^^^^
+    121 |   }
+    122 |
+    123 |   /**[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.controller.ts:140:51[39m[22m
+[1mTS2345: Argument of type 'PerformActionDto' is not assignable to parameter of type 'string'.
+    138 |     @Request() req:CustomRequest,
+    139 |   ) {
+  > 140 |     return this.sessionsService.performAction(id, performActionDto, req.user!.id);
+        |                                                   ^^^^^^^^^^^^^^^^
+    141 |   }
+    142 |
+    143 |   /**[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.controller.ts:199:33[39m[22m
+[1mTS2339: Property 'completeSession' does not exist on type 'SessionsService'.
+    197 |     @Request() req:CustomRequest,
+    198 |   ) {
+  > 199 |     return this.sessionsService.completeSession(id, req.user!.id);
+        |                                 ^^^^^^^^^^^^^^^
+    200 |   }
+    201 |
+    202 |   /**[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:164:9[39m[22m
+[1mTS2322: Type 'null' is not assignable to type 'InputJsonValue | NullableJsonNullValueInput'.
+    162 |         totalRealTimeElapsed: 0,
+    163 |         totalVirtualTimeElapsed: 0,
+  > 164 |         mistakesMade: null,
+        |         ^^^^^^^^^^^^
+    165 |         interventionsReceived: null,
+    166 |         activeMedications: null,
+    167 |         competencyScores: null,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:165:9[39m[22m
+[1mTS2322: Type 'null' is not assignable to type 'InputJsonValue | NullableJsonNullValueInput'.
+    163 |         totalVirtualTimeElapsed: 0,
+    164 |         mistakesMade: null,
+  > 165 |         interventionsReceived: null,
+        |         ^^^^^^^^^^^^^^^^^^^^^
+    166 |         activeMedications: null,
+    167 |         competencyScores: null,
+    168 |         overallScore: null,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:166:9[39m[22m
+[1mTS2322: Type 'null' is not assignable to type 'InputJsonValue | NullableJsonNullValueInput'.
+    164 |         mistakesMade: null,
+    165 |         interventionsReceived: null,
+  > 166 |         activeMedications: null,
+        |         ^^^^^^^^^^^^^^^^^
+    167 |         competencyScores: null,
+    168 |         overallScore: null,
+    169 |         timeEfficiencyScore: null,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:167:9[39m[22m
+[1mTS2322: Type 'null' is not assignable to type 'JsonNull | InputJsonValue'.
+    165 |         interventionsReceived: null,
+    166 |         activeMedications: null,
+  > 167 |         competencyScores: null,
+        |         ^^^^^^^^^^^^^^^^
+    168 |         overallScore: null,
+    169 |         timeEfficiencyScore: null,
+    170 |         stressPerformanceScore: null,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:302:22[39m[22m
+[1mTS2353: Object literal may only specify known properties, and 'createdAt' does not exist in type 'MedicalActionOrderByWithRelationInput | MedicalActionOrderByWithRelationInput[]'.
+    300 |         },
+    301 |         actions: {
+  > 302 |           orderBy: { createdAt: 'desc' },
+        |                      ^^^^^^^^^
+    303 |           take: 20,
+    304 |           include: {
+    305 |             initiatedBy: {[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:416:7[39m[22m
+[1mTS2375: Type '{ status: "COMPLETED" | "[1m[31mFAILED[39m[22m[1m"; realTimeCompleted: Date; virtualTimeCompleted: Date; actualOutcome: any; performedCorrectly: boolean; feedback: string; consequenceSeverity: number | undefined; }' is not assignable to type '(Without<MedicalActionUpdateInput, MedicalActionUncheckedUpdateInput> & MedicalActionUncheckedUpdateInput) | (Without<...> & MedicalActionUpdateInput)' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ status: "COMPLETED" | "[1m[31mFAILED[39m[22m[1m"; realTimeCompleted: Date; virtualTimeCompleted: Date; actualOutcome: any; performedCorrectly: boolean; feedback: string; consequenceSeverity: number | undefined; }' is not assignable to type 'Without<MedicalActionUncheckedUpdateInput, MedicalActionUpdateInput> & MedicalActionUpdateInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Type '{ status: "COMPLETED" | "[1m[31mFAILED[39m[22m[1m"; realTimeCompleted: Date; virtualTimeCompleted: Date; actualOutcome: any; performedCorrectly: boolean; feedback: string; consequenceSeverity: number | undefined; }' is not assignable to type 'MedicalActionUpdateInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Types of property 'consequenceSeverity' are incompatible.
+        Type 'number | undefined' is not assignable to type 'number | NullableIntFieldUpdateOperationsInput | null'.
+          Type 'undefined' is not assignable to type 'number | NullableIntFieldUpdateOperationsInput | null'.
+    414 |     const updatedAction = await this.prisma.medicalAction.update({
+    415 |       where: { id: action.id },
+  > 416 |       data: {
+        |       ^^^^
+    417 |         status: actionResult.success ? ActionStatus.COMPLETED : ActionStatus.[1m[31mFAILED[39m[22m[1m,
+    418 |         realTimeCompleted: new Date(),
+    419 |         virtualTimeCompleted: session.currentVirtualTime,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:576:53[39m[22m
+[1mTS2339: Property 'symptoms' does not exist on type 'string | number | boolean | JsonObject | JsonArray'.
+  Property 'symptoms' does not exist on type 'string'.
+    574 |       emotionalState: session.currentEmotionalState,
+    575 |       chiefComplaint: session.scenario.chiefComplaint,
+  > 576 |       currentSymptoms: session.currentPatientState?.symptoms || [],
+        |                                                     ^^^^^^^^
+    577 |       context: patientQuestionDto.context,
+    578 |       conversationHistory: await this.getRecentConversations(sessionId, 5),
+    579 |     };[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:593:42[39m[22m
+[1mTS2339: Property 'response' does not exist on type 'LLMResponse'.
+    591 |         userId,
+    592 |         userMessage: patientQuestionDto.question,
+  > 593 |         patientResponse: patientResponse.response,
+        |                                          ^^^^^^^^
+    594 |         messageContext: patientQuestionDto.context,
+    595 |         emotionalContext: session.currentEmotionalState,
+    596 |         virtualTimestamp: session.currentVirtualTime,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:597:40[39m[22m
+[1mTS2339: Property 'thinkingTime' does not exist on type 'LLMResponse'.
+    595 |         emotionalContext: session.currentEmotionalState,
+    596 |         virtualTimestamp: session.currentVirtualTime,
+  > 597 |         realTimeSpent: patientResponse.thinkingTime || 5,
+        |                                        ^^^^^^^^^^^^
+    598 |         medicalAccuracy: patientResponse.accuracy,
+    599 |         appropriateness: patientResponse.appropriateness,
+    600 |         emotionalAppropriateness: patientResponse.emotionalAppropriateness,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:598:42[39m[22m
+[1mTS2339: Property 'accuracy' does not exist on type 'LLMResponse'.
+    596 |         virtualTimestamp: session.currentVirtualTime,
+    597 |         realTimeSpent: patientResponse.thinkingTime || 5,
+  > 598 |         medicalAccuracy: patientResponse.accuracy,
+        |                                          ^^^^^^^^
+    599 |         appropriateness: patientResponse.appropriateness,
+    600 |         emotionalAppropriateness: patientResponse.emotionalAppropriateness,
+    601 |         conversationDepth: await this.calculateConversationDepth(sessionId),[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:599:42[39m[22m
+[1mTS2339: Property 'appropriateness' does not exist on type 'LLMResponse'.
+    597 |         realTimeSpent: patientResponse.thinkingTime || 5,
+    598 |         medicalAccuracy: patientResponse.accuracy,
+  > 599 |         appropriateness: patientResponse.appropriateness,
+        |                                          ^^^^^^^^^^^^^^^
+    600 |         emotionalAppropriateness: patientResponse.emotionalAppropriateness,
+    601 |         conversationDepth: await this.calculateConversationDepth(sessionId),
+    602 |       },[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:600:51[39m[22m
+[1mTS2339: Property 'emotionalAppropriateness' does not exist on type 'LLMResponse'.
+    598 |         medicalAccuracy: patientResponse.accuracy,
+    599 |         appropriateness: patientResponse.appropriateness,
+  > 600 |         emotionalAppropriateness: patientResponse.emotionalAppropriateness,
+        |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^
+    601 |         conversationDepth: await this.calculateConversationDepth(sessionId),
+    602 |       },
+    603 |     });[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:606:25[39m[22m
+[1mTS2339: Property 'emotionalImpact' does not exist on type 'LLMResponse'.
+    604 |
+    605 |     // Update emotional state based on conversation if needed
+  > 606 |     if (patientResponse.emotionalImpact) {
+        |                         ^^^^^^^^^^^^^^^
+    607 |       await this.updateEmotionalState(sessionId, patientResponse.emotionalImpact);
+    608 |     }
+    609 |[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:607:66[39m[22m
+[1mTS2339: Property 'emotionalImpact' does not exist on type 'LLMResponse'.
+    605 |     // Update emotional state based on conversation if needed
+    606 |     if (patientResponse.emotionalImpact) {
+  > 607 |       await this.updateEmotionalState(sessionId, patientResponse.emotionalImpact);
+        |                                                                  ^^^^^^^^^^^^^^^
+    608 |     }
+    609 |
+    610 |     this.logger.log(`Patient question processed: ${conversation.id}`);[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:614:33[39m[22m
+[1mTS2339: Property 'response' does not exist on type 'LLMResponse'.
+    612 |     return {
+    613 |       question: patientQuestionDto.question,
+  > 614 |       response: patientResponse.response,
+        |                                 ^^^^^^^^
+    615 |       conversationId: conversation.id,
+    616 |       emotionalContext: session.currentEmotionalState,
+    617 |       medicalAccuracy: patientResponse.accuracy,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:617:40[39m[22m
+[1mTS2339: Property 'accuracy' does not exist on type 'LLMResponse'.
+    615 |       conversationId: conversation.id,
+    616 |       emotionalContext: session.currentEmotionalState,
+  > 617 |       medicalAccuracy: patientResponse.accuracy,
+        |                                        ^^^^^^^^
+    618 |     };
+    619 |   }
+    620 |[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:656:7[39m[22m
+[1mTS2375: Type '{ status: "COMPLETED"; endTime: Date; finalFeedback: string | undefined; timeFlowMode: "PAUSED"; }' is not assignable to type '(Without<ScenarioSessionUpdateInput, ScenarioSessionUncheckedUpdateInput> & ScenarioSessionUncheckedUpdateInput) | (Without<...> & ScenarioSessionUpdateInput)' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ status: "COMPLETED"; endTime: Date; finalFeedback: string | undefined; timeFlowMode: "PAUSED"; }' is not assignable to type 'Without<ScenarioSessionUncheckedUpdateInput, ScenarioSessionUpdateInput> & ScenarioSessionUpdateInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Type '{ status: "COMPLETED"; endTime: Date; finalFeedback: string | undefined; timeFlowMode: "PAUSED"; }' is not assignable to type 'ScenarioSessionUpdateInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Types of property 'finalFeedback' are incompatible.
+        Type 'string | undefined' is not assignable to type 'string | NullableStringFieldUpdateOperationsInput | null'.
+          Type 'undefined' is not assignable to type 'string | NullableStringFieldUpdateOperationsInput | null'.
+    654 |     const updatedSession = await this.prisma.scenarioSession.update({
+    655 |       where: { id: sessionId },
+  > 656 |       data: {
+        |       ^^^^
+    657 |         status: SessionStatus.COMPLETED,
+    658 |         endTime: new Date(),
+    659 |         finalFeedback: endSessionDto.finalFeedback,[39m[22m
+
+[1m[31mERROR[39m[22m in [1m./src/sessions/sessions.service.ts:976:22[39m[22m
+[1mTS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ physical_exam: { success: string; failure: string; }; medication: { success: string; failure: string; }; procedure: { success: string; failure: string; }; default: { success: string; failure: string; }; }'.
+  No index signature with a parameter of type 'string' was found on type '{ physical_exam: { success: string; failure: string; }; medication: { success: string; failure: string; }; procedure: { success: string; failure: string; }; default: { success: string; failure: string; }; }'.
+    974 |     };
+    975 |
+  > 976 |     const feedback = feedbackMap[actionType] || feedbackMap.default;
+        |                      ^^^^^^^^^^^^^^^^^^^^^^^
+    977 |     return success ? feedback.success : feedback.failure;
+    978 |   }
+    979 |[39m[22m
+
+[1m[31mERROR[39m[22m in [1m../sharedTypes/src/simulation.ts:374:10[39m[22m
+[1mTS1205: Re-exporting a type when 'isolatedModules' is enabled requires using 'export type'.
+    372 | }
+    373 |
+  > 374 | export { VitalSigns };
+        |          ^^^^^^^^^^
+    375 |[39m[22m
+
+webpack 5.100.2 compiled with [1m[31m77 errors[39m[22m in 8254 ms

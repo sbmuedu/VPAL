@@ -90,6 +90,7 @@ export interface Institution {
   isActive: boolean;
   createdAt: Date;
 }
+
 export enum InterventionType {
   PREVENTIVE = 'PREVENTIVE',
   CORRECTIVE = 'CORRECTIVE',

@@ -33,12 +33,12 @@ export class AuthService {
       include: { institution: true },
     });
 
-    if (user && await bcrypt.compare(password, user.password)) {
+    if (user && await bcrypt.compare(password, user.password!)) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password: _, ...result } = user;
+      const { password: _, ...result } = user; // remove password part of user and others to reult field
       return result;
     }
-
+    //if user not found or password not matched thrown UnauthorizedException
     throw new UnauthorizedException('Invalid credentials');
   }
 

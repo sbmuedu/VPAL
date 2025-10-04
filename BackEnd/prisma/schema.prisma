@@ -77,8 +77,8 @@ enum AuthenticationProvider {
 
 // ===== CORE MODELS =====
 model User {
-  id             String       @id @default(uuid())
-  email          String       @unique
+  id             String   @id @default(uuid())
+  email          String   @unique
   password       String?
   firstName      String
   lastName       String
@@ -86,7 +86,7 @@ model User {
   specialization String?
   licenseNumber  String?
   institutionId  String?
-  
+
   // Authentication
   authProvider AuthenticationProvider @default(LOCAL)
   externalId   String?
@@ -98,46 +98,46 @@ model User {
   lastLoginAt DateTime?
 
   // Relations
-  institution          Institution?             @relation(fields: [institutionId], references: [id], onDelete: SetNull)
-  
+  institution Institution? @relation(fields: [institutionId], references: [id], onDelete: SetNull)
+
   // Scenarios
-  createdScenarios     MedicalScenario[]        @relation("ScenarioCreator")
-  scenarioVersions     ScenarioVersion[]        @relation("ScenarioVersionCreator")
-  
+  createdScenarios MedicalScenario[] @relation("ScenarioCreator")
+  scenarioVersions ScenarioVersion[] @relation("ScenarioVersionCreator")
+
   // Sessions
-  studentSessions      ScenarioSession[]        @relation("StudentSessions")
-  supervisedSessions   ScenarioSession[]        @relation("SupervisedSessions")
-  
+  studentSessions    ScenarioSession[] @relation("StudentSessions")
+  supervisedSessions ScenarioSession[] @relation("SupervisedSessions")
+
   // Actions & Interventions
-  initiatedActions     MedicalAction[]          @relation("ActionInitiator")
-  performedActions     MedicalAction[]          @relation("ActionPerformer")
-  interventions        SupervisorIntervention[]
-  
+  initiatedActions MedicalAction[]          @relation("ActionInitiator")
+  performedActions MedicalAction[]          @relation("ActionPerformer")
+  interventions    SupervisorIntervention[]
+
   // Orders
-  medicationOrders     MedicationOrder[]        @relation("MedicationOrderStudent")
-  administeredMedications MedicationOrder[]     @relation("MedicationOrderAdministeredBy")
-  procedureOrders      ProcedureOrder[]         @relation("ProcedureOrderStudent")
-  performedProcedures  ProcedureOrder[]         @relation("ProcedureOrderPerformedBy")
-  labOrders            LabOrder[]               @relation("LabOrderStudent")
-  collectedLabs        LabOrder[]               @relation("LabOrderCollectedBy")
-  imagingOrders        ImagingOrder[]           @relation("ImagingOrderStudent")
-  performedImaging     ImagingOrder[]           @relation("ImagingOrderPerformedBy")
-  examOrders           ExamOrder[]              @relation("ExamOrderStudent")
-  
+  medicationOrders        MedicationOrder[] @relation("MedicationOrderStudent")
+  administeredMedications MedicationOrder[] @relation("MedicationOrderAdministeredBy")
+  procedureOrders         ProcedureOrder[]  @relation("ProcedureOrderStudent")
+  performedProcedures     ProcedureOrder[]  @relation("ProcedureOrderPerformedBy")
+  labOrders               LabOrder[]        @relation("LabOrderStudent")
+  collectedLabs           LabOrder[]        @relation("LabOrderCollectedBy")
+  imagingOrders           ImagingOrder[]    @relation("ImagingOrderStudent")
+  performedImaging        ImagingOrder[]    @relation("ImagingOrderPerformedBy")
+  examOrders              ExamOrder[]       @relation("ExamOrderStudent")
+
   // Other
-  conversations        LLMConversation[]
-  timeEvents           TimeEvent[]
-  sessionAssessments   SessionAssessment[]
-  
+  conversations      LLMConversation[]
+  timeEvents         TimeEvent[]
+  sessionAssessments SessionAssessment[]
+
   // Medical Knowledge Base - Validation
-  validatedDrugs       Drug[]                   @relation("DrugValidator")
-  validatedProcedures  Procedure[]              @relation("ProcedureValidator")
-  validatedTests       LaboratoryTest[]         @relation("LabTestValidator")
-  validatedStudies     ImagingStudy[]           @relation("ImagingValidator")
-  validatedExams       PhysicalExam[]           @relation("ExamValidator")
-  validatedScenarios   MedicalScenario[]        @relation("ScenarioValidator")
-  validatedVersions    ScenarioVersion[]        @relation("VersionValidator")
-  validatedOrderSets   OrderSet[]               @relation("OrderSetValidator")
+  validatedDrugs      Drug[]            @relation("DrugValidator")
+  validatedProcedures Procedure[]       @relation("ProcedureValidator")
+  validatedTests      LaboratoryTest[]  @relation("LabTestValidator")
+  validatedStudies    ImagingStudy[]    @relation("ImagingValidator")
+  validatedExams      PhysicalExam[]    @relation("ExamValidator")
+  validatedScenarios  MedicalScenario[] @relation("ScenarioValidator")
+  validatedVersions   ScenarioVersion[] @relation("VersionValidator")
+  validatedOrderSets  OrderSet[]        @relation("OrderSetValidator")
 
   @@map("users")
 }
@@ -166,7 +166,7 @@ model InstitutionalConfig {
   maxUsers                Int?
   allowedDomains          String[]
   customAssessmentRubrics Json?
-  scenarioAccessLevel     String @default("INSTITUTIONAL")
+  scenarioAccessLevel     String   @default("INSTITUTIONAL")
 
   @@map("institutional_configs")
 }
@@ -225,8 +225,8 @@ model MedicalScenario {
   institution   Institution? @relation(fields: [institutionId], references: [id], onDelete: SetNull)
 
   // Relations
-  sessions        ScenarioSession[]
-  versions        ScenarioVersion[]
+  sessions ScenarioSession[]
+  versions ScenarioVersion[]
 
   @@map("medical_scenarios")
 }
@@ -235,11 +235,11 @@ model ScenarioVersion {
   id         String          @id @default(uuid())
   scenarioId String
   scenario   MedicalScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
-  
+
   version     Float
   changes     Json
   changeNotes String
-  
+
   validatedByExpertId String?
   validatedByExpert   User?   @relation("VersionValidator", fields: [validatedByExpertId], references: [id], onDelete: SetNull)
 
@@ -258,11 +258,11 @@ model ScenarioSession {
   scenario   MedicalScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
 
   // Participants
-  studentId    String
-  student      User   @relation("StudentSessions", fields: [studentId], references: [id], onDelete: Cascade)
-  
+  studentId String
+  student   User   @relation("StudentSessions", fields: [studentId], references: [id], onDelete: Cascade)
+
   supervisorId String?
-  supervisor   User?  @relation("SupervisedSessions", fields: [supervisorId], references: [id], onDelete: SetNull)
+  supervisor   User?   @relation("SupervisedSessions", fields: [supervisorId], references: [id], onDelete: SetNull)
 
   // Session status
   status         SessionStatus  @default(ACTIVE)
@@ -292,7 +292,7 @@ model ScenarioSession {
 
   // Multi-patient support
   parentSessionId String?
-  parentSession   ScenarioSession? @relation("MultiPatientSessions", fields: [parentSessionId], references: [id])
+  parentSession   ScenarioSession?  @relation("MultiPatientSessions", fields: [parentSessionId], references: [id])
   childSessions   ScenarioSession[] @relation("MultiPatientSessions")
 
   // Assessment
@@ -310,7 +310,7 @@ model ScenarioSession {
   interventions      SupervisorIntervention[]
   sessionAssessments SessionAssessment[]
   timeUsageAnalytics TimeUsageAnalytics[]
-  
+
   // Orders
   medicationOrders MedicationOrder[]
   procedureOrders  ProcedureOrder[]
@@ -325,12 +325,12 @@ model MedicalAction {
   id        String          @id @default(uuid())
   sessionId String
   session   ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  
+
   initiatedById String
-  initiatedBy   User        @relation("ActionInitiator", fields: [initiatedById], references: [id], onDelete: Cascade)
-  
+  initiatedBy   User   @relation("ActionInitiator", fields: [initiatedById], references: [id], onDelete: Cascade)
+
   performedById String?
-  performedBy   User?       @relation("ActionPerformer", fields: [performedById], references: [id], onDelete: SetNull)
+  performedBy   User?   @relation("ActionPerformer", fields: [performedById], references: [id], onDelete: SetNull)
 
   actionType    String
   actionDetails Json
@@ -353,7 +353,7 @@ model MedicalAction {
 
   // Order timing
   expectedCompletionVirtualTime DateTime?
-  canBeFastForwarded            Boolean @default(true)
+  canBeFastForwarded            Boolean   @default(true)
 
   // Assessment
   performedCorrectly Boolean?
@@ -367,12 +367,12 @@ model MedicalAction {
 }
 
 model TimeEvent {
-  id                  String          @id @default(uuid())
-  sessionId           String
-  session             ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  
+  id        String          @id @default(uuid())
+  sessionId String
+  session   ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
   triggeredByActionId String?
-  triggeredByAction   MedicalAction?  @relation(fields: [triggeredByActionId], references: [id], onDelete: SetNull)
+  triggeredByAction   MedicalAction? @relation(fields: [triggeredByActionId], references: [id], onDelete: SetNull)
 
   eventType            String
   eventData            Json
@@ -451,7 +451,7 @@ model LLMConversation {
   patientResponse   String
   messageContext    Json
   emotionalContext  EmotionalState
-  conversationDepth Int @default(1)
+  conversationDepth Int            @default(1)
 
   // Time tracking
   timestamp        DateTime @default(now())
@@ -700,12 +700,13 @@ model MedicationOrder {
   id        String          @id @default(uuid())
   sessionId String
   session   ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  
+
   studentId String
-  student   User            @relation("MedicationOrderStudent", fields: [studentId], references: [id], onDelete: Cascade)
-  
-  drugId    String
-  drug      Drug            @relation(fields: [drugId], references: [id], onDelete: Cascade)
+  student   User   @relation("MedicationOrderStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  prescribedBy String
+
+  drugId String
+  drug   Drug   @relation(fields: [drugId], references: [id], onDelete: Cascade)
 
   // Order details
   dosage     String
@@ -715,7 +716,7 @@ model MedicationOrder {
   indication String
 
   // Time tracking
-  orderTime                  DateTime @default(now())
+  orderTime                  DateTime  @default(now())
   virtualOrderTime           DateTime
   expectedAdministrationTime DateTime?
   actualAdministrationTime   DateTime?
@@ -736,15 +737,15 @@ model MedicationOrder {
 }
 
 model ProcedureOrder {
-  id          String          @id @default(uuid())
-  sessionId   String
-  session     ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  
-  studentId   String
-  student     User            @relation("ProcedureOrderStudent", fields: [studentId], references: [id], onDelete: Cascade)
-  
+  id        String          @id @default(uuid())
+  sessionId String
+  session   ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  studentId String
+  student   User   @relation("ProcedureOrderStudent", fields: [studentId], references: [id], onDelete: Cascade)
+
   procedureId String
-  procedure   Procedure       @relation(fields: [procedureId], references: [id], onDelete: Cascade)
+  procedure   Procedure @relation(fields: [procedureId], references: [id], onDelete: Cascade)
 
   // Order details
   indication String
@@ -752,7 +753,7 @@ model ProcedureOrder {
   urgency    EventPriority @default(MEDIUM)
 
   // Time tracking
-  orderTime        DateTime @default(now())
+  orderTime        DateTime  @default(now())
   virtualOrderTime DateTime
   scheduledTime    DateTime?
   completionTime   DateTime?
@@ -776,12 +777,12 @@ model LabOrder {
   id        String          @id @default(uuid())
   sessionId String
   session   ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  
+
   studentId String
-  student   User            @relation("LabOrderStudent", fields: [studentId], references: [id], onDelete: Cascade)
-  
-  testId    String
-  test      LaboratoryTest  @relation(fields: [testId], references: [id], onDelete: Cascade)
+  student   User   @relation("LabOrderStudent", fields: [studentId], references: [id], onDelete: Cascade)
+
+  testId String
+  test   LaboratoryTest @relation(fields: [testId], references: [id], onDelete: Cascade)
 
   // Order details
   indication String
@@ -789,11 +790,11 @@ model LabOrder {
   statOrder  Boolean       @default(false)
 
   // Time tracking
-  orderTime              DateTime @default(now())
+  orderTime              DateTime  @default(now())
   virtualOrderTime       DateTime
   collectionTime         DateTime?
   resultTime             DateTime?
-  expectedTurnaroundTime Int?     @default(60)
+  expectedTurnaroundTime Int?      @default(60)
 
   // Status and results
   status            ActionStatus @default(PENDING)
@@ -814,12 +815,12 @@ model ImagingOrder {
   id        String          @id @default(uuid())
   sessionId String
   session   ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  
+
   studentId String
-  student   User            @relation("ImagingOrderStudent", fields: [studentId], references: [id], onDelete: Cascade)
-  
-  studyId   String
-  study     ImagingStudy    @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  student   User   @relation("ImagingOrderStudent", fields: [studentId], references: [id], onDelete: Cascade)
+
+  studyId String
+  study   ImagingStudy @relation(fields: [studyId], references: [id], onDelete: Cascade)
 
   // Order details
   indication String
@@ -828,7 +829,7 @@ model ImagingOrder {
   statOrder  Boolean       @default(false)
 
   // Time tracking
-  orderTime        DateTime @default(now())
+  orderTime        DateTime  @default(now())
   virtualOrderTime DateTime
   studyTime        DateTime?
   resultTime       DateTime?
@@ -851,19 +852,19 @@ model ExamOrder {
   id        String          @id @default(uuid())
   sessionId String
   session   ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  
+
   studentId String
-  student   User            @relation("ExamOrderStudent", fields: [studentId], references: [id], onDelete: Cascade)
-  
-  examId    String
-  exam      PhysicalExam    @relation(fields: [examId], references: [id], onDelete: Cascade)
+  student   User   @relation("ExamOrderStudent", fields: [studentId], references: [id], onDelete: Cascade)
+
+  examId String
+  exam   PhysicalExam @relation(fields: [examId], references: [id], onDelete: Cascade)
 
   // Order details
   indication String
   bodyPart   String?
 
   // Time tracking
-  orderTime        DateTime @default(now())
+  orderTime        DateTime  @default(now())
   virtualOrderTime DateTime
   performedTime    DateTime?
 

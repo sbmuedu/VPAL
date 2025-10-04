@@ -194,15 +194,15 @@ export class AssessmentService {
       where: { id: sessionId },
       include: {
         scenario: {
-          include: {
+          select: {
+            // assessmentCriteria: true,
             learningObjectives: true,
-            assessmentCriteria: true,
           },
         },
-        medicalActions: {
+        actions: {
           orderBy: { virtualTimeStarted: 'asc' },
           include: {
-            user: {
+            initiatedBy: {
               select: {
                 id: true,
                 firstName: true,
@@ -228,21 +228,21 @@ export class AssessmentService {
         medicationOrders: {
           include: {
             drug: true,
-            prescribedBy: true,
+            // prescribedBy: true,
             administeredBy: true,
           },
         },
         labOrders: {
           include: {
             test: true,
-            orderedBy: true,
+            // orderedBy: true,
             collectedBy: true,
           },
         },
         procedureOrders: {
           include: {
             procedure: true,
-            orderedBy: true,
+            // orderedBy: true,
             performedBy: true,
           },
         },
@@ -255,7 +255,7 @@ export class AssessmentService {
             firstName: true,
             lastName: true,
             email: true,
-            experienceLevel: true,
+            // experienceLevel: true,
           },
         },
       },
@@ -315,7 +315,7 @@ export class AssessmentService {
 
     // Add evidence based on objective type
     if (objective.toLowerCase().includes('diagnos')) {
-      if (session.medicalActions.some((action: any) => action.actionType.includes('diagnostic'))) {
+      if (session.actions.some((action: any) => action.actionType.includes('diagnostic'))) {
         evidence.push('Performed appropriate diagnostic procedures');
       }
       if (session.labOrders.length > 0) {
@@ -377,13 +377,15 @@ export class AssessmentService {
   /**
    * Get competency benchmarks
    */
-  private getCompetencyBenchmarks(difficulty: string) {
+  private getCompetencyBenchmarks(difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED') {
+  // private getCompetencyBenchmarks(difficulty: string) {
     // Implementation for benchmark retrieval
     const benchmarks = {
       BEGINNER: { clinical: 0.6, technical: 0.5, communication: 0.7 },
       INTERMEDIATE: { clinical: 0.75, technical: 0.7, communication: 0.8 },
       ADVANCED: { clinical: 0.85, technical: 0.8, communication: 0.9 }
     };
+    // return benchmarks[difficulty as keyof typeof benchmarks] || benchmarks.INTERMEDIATE;
     return benchmarks[difficulty] || benchmarks.INTERMEDIATE;
   }
 

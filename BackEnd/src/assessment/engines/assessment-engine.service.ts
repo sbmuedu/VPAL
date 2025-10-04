@@ -43,11 +43,11 @@ export class AssessmentEngineService {
     private feedbackGenerator: FeedbackGeneratorService,
     private debriefEngine: DebriefEngineService,
     private benchmarksService: BenchmarksService,
-  ) {}
+  ) { }
 
   async generateRealTimeFeedback(context: AssessmentContext) {
     this.logger.log(`Generating real-time feedback for session ${context.sessionId}`);
-    
+
     const competencyScores = await this.competencyCalculator.calculateCurrentCompetencies(
       context.sessionId,
       context
@@ -92,13 +92,13 @@ export class AssessmentEngineService {
 
     const benchmarkComparison = await this.benchmarksService.compareToBenchmarks(
       overallScore,
-      session.scenario.difficultyLevel,
-      session.assessmentType
+      session!.scenario.difficulty,
+      session!.assessmentType
     );
 
     const feedback = await this.feedbackGenerator.generateFinalFeedback(
       competencyScores,
-      session.scenario.learningObjectives
+      session!.scenario.learningObjectives
     );
 
     return {
@@ -144,13 +144,16 @@ export class AssessmentEngineService {
         endTime: { gte: this.getTimeframeDate(timeframe) },
       },
       include: {
-        scenario: { select: { title: true, difficultyLevel: true, medicalCondition: true } },
+        scenario: { 
+          select: { title: true, difficulty: true, chiefComplaint: true } },
       },
       orderBy: { endTime: 'asc' },
     });
 
     const progression = await Promise.all(
-      sessions.map(async (session: { id: string; scenario: { title: any; }; endTime: any; }) => {  //reza  (session)=>
+      sessions.map(async (session)=> {
+        // async (session: { id: string; scenario: { title: any; }; endTime: any; }) => {
+            //reza  (session)=>
         const assessment = await this.calculateFinalAssessment(session.id);
         return {
           sessionId: session.id,
@@ -168,22 +171,57 @@ export class AssessmentEngineService {
   // Private helper methods
   private async getSessionWithFullData(sessionId: string) {
     return this.prisma.scenarioSession.findUnique({
-      where: { id: sessionId },
+      where: { 
+        id: sessionId 
+      },
       include: {
-        scenario: { include: { learningObjectives: true, assessmentCriteria: true } },
-        medicalActions: { 
+        scenario: {
+          select:{
+            learningObjectives: true,
+            difficulty: true
+          }
+        },
+        actions: {
           orderBy: { virtualTimeStarted: 'asc' },
-          include: { user: { select: { id: true, firstName: true, lastName: true, role: true } } }
+          include: { 
+            initiatedBy: { 
+              select: { id: true, firstName: true, lastName: true, role: true } 
+            } 
+          }
         },
-        conversations: { 
+        conversations: {
           orderBy: { timestamp: 'asc' },
-          include: { user: { select: { id: true, firstName: true, lastName: true, role: true } } }
+          include: { 
+            user: { 
+              select: { id: true, firstName: true, lastName: true, role: true } } }
         },
-        medicationOrders: { include: { drug: true, prescribedBy: true, administeredBy: true } },
-        labOrders: { include: { test: true, orderedBy: true, collectedBy: true } },
-        procedureOrders: { include: { procedure: true, orderedBy: true, performedBy: true } },
-        timeEvents: { orderBy: { virtualTimeScheduled: 'asc' } },
-        student: { select: { id: true, firstName: true, lastName: true, email: true, experienceLevel: true } },
+        medicationOrders: { 
+          select: { 
+            drug: true, 
+            prescribedBy: true, 
+            administeredBy: true 
+          } 
+        },
+        labOrders: { 
+          select: { 
+            test: true, 
+            //orderedBy: true, 
+            collectedBy: true 
+          } 
+        },
+        procedureOrders: { 
+          select: { 
+            procedure: true, 
+            // orderedBy: true, 
+            performedBy: true 
+          } 
+        },
+        timeEvents: { 
+          orderBy: { virtualTimeScheduled: 'asc' } 
+        },
+        student: { 
+          select: { id: true, firstName: true, lastName: true, email: true, /*experienceLevel: true */} 
+        },
       },
     });
   }

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SessionsService } from './sessions.service';
 import { SessionsController } from './sessions.controller';
-import { DatabaseModule } from '../prisma/prisma.module';
+import { PrismaModule } from '../prisma/prisma.module';
 import { LLMModule } from '../llm/llm.module';
 
 /**
@@ -10,7 +10,7 @@ import { LLMModule } from '../llm/llm.module';
  */
 @Module({
   imports: [
-    DatabaseModule,
+    PrismaModule,
     LLMModule, // Required for patient conversations
   ],
   providers: [SessionsService],

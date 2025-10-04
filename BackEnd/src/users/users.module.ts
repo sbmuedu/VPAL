@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
-import { DatabaseModule } from '../prisma/prisma.module';
+import { PrismaModule } from '../prisma/prisma.module';
 
 /**
  * Users Module
  * Provides user management functionality including CRUD operations and statistics
  */
 @Module({
-  imports: [DatabaseModule],
+  imports: [PrismaModule],
   providers: [UsersService],
   controllers: [UsersController],
   exports: [UsersService],
