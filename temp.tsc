@@ -1,0 +1,324 @@
+// schema.prisma - CORRECTED VERSION
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===== ENUMS =====
+enum UserRole {
+  STUDENT
+  NURSE
+  SUPERVISOR
+  MEDICAL_EXPERT
+  ADMIN
+}
+
+enum ScenarioDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum SessionStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum TimeFlowMode {
+  REAL_TIME
+  ACCELERATED
+  PAUSED
+}
+
+enum ActionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  FAILED
+}
+
+enum EventPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AssessmentType {
+  FORMATIVE
+  SUMMATIVE
+}
+
+enum EmotionalState {
+  CALM
+  ANXIOUS
+  COOPERATIVE
+  RESISTANT
+  DISTRESSED
+  ANGRY
+  CONFUSED
+}
+
+enum AuthenticationProvider {
+  LOCAL
+  INSTITUTIONAL
+  OAUTH_GOOGLE
+  OAUTH_MICROSOFT
+}
+
+// ===== CORE MODELS =====
+model User {
+  id             String       @id @default(uuid())
+  email          String       @unique
+  password       String?
+  firstName      String
+  lastName       String
+  role           UserRole
+  specialization String?
+  licenseNumber  String?
+  institutionId  String?
+  
+  // Authentication
+  authProvider AuthenticationProvider @default(LOCAL)
+  externalId   String?
+  isActive     Boolean                @default(true)
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastLoginAt DateTime?
+
+  // Relations
+  institution          Institution?             @relation(fields: [institutionId], references: [id], onDelete: SetNull)
+  
+  // Scenarios
+  createdScenarios     MedicalScenario[]        @relation("ScenarioCreator")
+  scenarioVersions     ScenarioVersion[]        @relation("ScenarioVersionCreator")
+  
+  // Sessions
+  studentSessions      ScenarioSession[]        @relation("StudentSessions")
+  supervisedSessions   ScenarioSession[]        @relation("SupervisedSessions")
+  
+  // Actions & Interventions
+  initiatedActions     MedicalAction[]          @relation("ActionInitiator")
+  performedActions     MedicalAction[]          @relation("ActionPerformer")
+  interventions        SupervisorIntervention[]
+  
+  // Orders
+  medicationOrders     MedicationOrder[]        @relation("MedicationOrderStudent")
+  administeredMedications MedicationOrder[]     @relation("MedicationOrderAdministeredBy")
+  procedureOrders      ProcedureOrder[]         @relation("ProcedureOrderStudent")
+  performedProcedures  ProcedureOrder[]         @relation("ProcedureOrderPerformedBy")
+  labOrders            LabOrder[]               @relation("LabOrderStudent")
+  collectedLabs        LabOrder[]               @relation("LabOrderCollectedBy")
+  imagingOrders        ImagingOrder[]           @relation("ImagingOrderStudent")
+  performedImaging     ImagingOrder[]           @relation("ImagingOrderPerformedBy")
+  examOrders           ExamOrder[]              @relation("ExamOrderStudent")
+  
+  // Other
+  conversations        LLMConversation[]
+  timeEvents           TimeEvent[]
+  sessionAssessments   SessionAssessment[]
+  
+  // Medical Knowledge Base - Validation
+  validatedDrugs       Drug[]                   @relation("DrugValidator")
+  validatedProcedures  Procedure[]              @relation("ProcedureValidator")
+  validatedTests       LaboratoryTest[]         @relation("LabTestValidator")
+  validatedStudies     ImagingStudy[]           @relation("ImagingValidator")
+  validatedExams       PhysicalExam[]           @relation("ExamValidator")
+  validatedScenarios   MedicalScenario[]        @relation("ScenarioValidator")
+  validatedVersions    ScenarioVersion[]        @relation("VersionValidator")
+  validatedOrderSets   OrderSet[]               @relation("OrderSetValidator")
+
+  @@map("users")
+}
+
+model Institution {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  domain    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  // Relations
+  users               User[]
+  scenarios           MedicalScenario[]
+  institutionalConfig InstitutionalConfig?
+
+  @@map("institutions")
+}
+
+model InstitutionalConfig {
+  id            String      @id @default(uuid())
+  institutionId String      @unique
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  // Configuration
+  maxUsers                Int?
+  allowedDomains          String[]
+  customAssessmentRubrics Json?
+  scenarioAccessLevel     String @default("INSTITUTIONAL")
+
+  @@map("institutional_configs")
+}
+
+// ===== SCENARIO MANAGEMENT =====
+model MedicalScenario {
+  id                String             @id @default(uuid())
+  title             String
+  description       String
+  difficulty        ScenarioDifficulty
+  specialty         String
+  tags              String[]
+  estimatedDuration Int
+
+  // Time settings
+  timeAccelerationRate   Int     @default(60)
+  maxFastForwardDuration Int?
+  requiresTimePressure   Boolean @default(false)
+
+  // Educational objectives
+  competencyWeights  Json
+  learningObjectives String[]
+
+  // Patient presentation
+  chiefComplaint          String
+  historyOfPresentIllness String
+  pastMedicalHistory      String
+  medications             String[]
+  allergies               String[]
+  initialVitalSigns       Json
+  initialEmotionalState   EmotionalState @default(CALM)
+
+  // Physiological model
+  physiologyModel      Json
+  complicationTriggers Json?
+  naturalProgression   Json?
+
+  // Scenario timeline
+  scheduledEvents Json?
+  branchingPaths  Json?
+
+  // Validation
+  validatedByExpertId String?
+  validatedByExpert   User?     @relation("ScenarioValidator", fields: [validatedByExpertId], references: [id], onDelete: SetNull)
+  validationDate      DateTime?
+  validationNotes     String?
+
+  // Metadata
+  version       Float        @default(1.0)
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  createdBy     String
+  creator       User         @relation("ScenarioCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  institutionId String?
+  institution   Institution? @relation(fields: [institutionId], references: [id], onDelete: SetNull)
+
+  // Relations
+  sessions        ScenarioSession[]
+  versions        ScenarioVersion[]
+
+  @@map("medical_scenarios")
+}
+
+model ScenarioVersion {
+  id         String          @id @default(uuid())
+  scenarioId String
+  scenario   MedicalScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  
+  version     Float
+  changes     Json
+  changeNotes String
+  
+  validatedByExpertId String?
+  validatedByExpert   User?   @relation("VersionValidator", fields: [validatedByExpertId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  createdBy String
+  creator   User     @relation("ScenarioVersionCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@unique([scenarioId, version])
+  @@map("scenario_versions")
+}
+
+// ===== SESSION MANAGEMENT =====
+model ScenarioSession {
+  id         String          @id @default(uuid())
+  scenarioId String
+  scenario   MedicalScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+
+  // Participants
+  studentId    String
+  student      User   @relation("StudentSessions", fields: [studentId], references: [id], onDelete: Cascade)
+  
+  supervisorId String?
+  supervisor   User?  @relation("SupervisedSessions", fields: [supervisorId], references: [id], onDelete: SetNull)
+
+  // Session status
+  status         SessionStatus  @default(ACTIVE)
+  assessmentType AssessmentType @default(FORMATIVE)
+
+  // Time tracking
+  startTime               DateTime     @default(now())
+  endTime                 DateTime?
+  currentVirtualTime      DateTime
+  lastRealTimeUpdate      DateTime
+  timeFlowMode            TimeFlowMode @default(REAL_TIME)
+  totalRealTimeElapsed    Int          @default(0)
+  totalVirtualTimeElapsed Int          @default(0)
+  timePressureEnabled     Boolean      @default(false)
+
+  // Progress tracking
+  complicationsEncountered String[]
+  mistakesMade             Json?
+  interventionsReceived    Json?
+
+  // Current state
+  currentPatientState   Json
+  currentEmotionalState EmotionalState
+  completedSteps        String[]
+  activeMedications     Json?
+  latestVitalSigns      Json
+
+  // Multi-patient support
+  parentSessionId String?
+  parentSession   ScenarioSession? @relation("MultiPatientSessions", fields: [parentSessionId], references: [id])
+  childSessions   ScenarioSession[] @relation("MultiPatientSessions")
+
+  // Assessment
+  competencyScores       Json
+  overallScore           Float?
+  timeEfficiencyScore    Float?
+  stressPerformanceScore Float?
+  finalFeedback          String?
+
+  // Relations
+  encounters         PatientEncounter[]
+  actions            MedicalAction[]
+  conversations      LLMConversation[]
+  timeEvents         TimeEvent[]
+  interventions      SupervisorIntervention[]
+  sessionAssessments SessionAssessment[]
+  timeUsageAnalytics TimeUsageAnalytics[]
+  
+  // Orders
+  medicationOrders MedicationOrder[]
+  procedureOrders  ProcedureOrder[]
+  labOrders        LabOrder[]
+  imagingOrders    ImagingOrder[]
+  examOrders       ExamOrder[]
+
+  @@map("scenario_sessions")
+}
+
+// ... (Other models remain the same as your original)

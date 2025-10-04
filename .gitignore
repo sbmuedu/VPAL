@@ -1,0 +1,62 @@
+# Dependencies
+Backend/node_modules/
+Frontend/node_modules/
+sharedTypes/node_modules/
+
+Backend/dist/
+Frontend/dist/
+sharedTypes/dist/
+
+Backend/test/
+Frontend/test/
+sharedTypes/test/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+.out/
+.next/
+.qodo/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary folders
+tmp/
+temp/

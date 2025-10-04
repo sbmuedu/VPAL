@@ -1,0 +1,865 @@
+// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  STUDENT
+  NURSE
+  SUPERVISOR
+  MEDICAL_EXPERT
+  ADMIN
+}
+
+enum ScenarioDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum SessionStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum TimeFlowMode {
+  REAL_TIME
+  ACCELERATED
+  PAUSED
+}
+
+enum ActionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  FAILED
+}
+
+enum EventPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AssessmentType {
+  FORMATIVE
+  SUMMATIVE
+}
+
+enum EmotionalState {
+  CALM
+  ANXIOUS
+  COOPERATIVE
+  RESISTANT
+  DISTRESSED
+  ANGRY
+  CONFUSED
+}
+
+enum AuthenticationProvider {
+  LOCAL
+  INSTITUTIONAL
+  OAUTH_GOOGLE
+  OAUTH_MICROSOFT
+}
+
+// Main Tables
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String?
+  firstName     String
+  lastName      String
+  role          UserRole
+  specialization String?
+  licenseNumber String?
+  institutionId String?
+  institution   Institution? @relation(fields: [institutionId], references: [id], onDelete: SetNull)
+  
+  // Authentication
+  authProvider  AuthenticationProvider @default(LOCAL)
+  externalId    String? // ID from external auth system
+  isActive      Boolean @default(true)
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastLoginAt   DateTime?
+  
+  // Relations
+  createdScenarios MedicalScenario[]
+  studentSessions  ScenarioSession[]
+  supervisedSessions ScenarioSession[]
+  nurseActions    MedicalAction[]
+  interventions   SupervisorIntervention[]
+  conversations   LLMConversation[]
+  timeEvents      TimeEvent[]
+  assessments     SessionAssessment[]
+  
+  @@map("users")
+}
+
+model Institution {
+  id            String   @id @default(uuid())
+  name          String   @unique
+  domain        String?  // For email validation
+  isActive      Boolean @default(true)
+  createdAt     DateTime @default(now())
+  
+  // Relations
+  users         User[]
+  scenarios     MedicalScenario[]
+  
+  @@map("institutions")
+}
+
+model MedicalScenario {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  difficulty  ScenarioDifficulty
+  specialty   String
+  estimatedDuration Int  // in virtual minutes
+  
+  // Time settings
+  timeAccelerationRate Int @default(60) // 1 real minute = 60 virtual minutes
+  maxFastForwardDuration Int? // Maximum virtual minutes allowed to fast-forward
+  requiresTimePressure Boolean @default(false) // Whether time pressure is enforced
+  
+  // Educational objectives with weights
+  competencyWeights Json // { diagnostic: 0.3, procedural: 0.25, communication: 0.2, professionalism: 0.15, criticalThinking: 0.1 }
+  learningObjectives String[]
+  
+  // Patient presentation
+  chiefComplaint  String
+  historyOfPresentIllness String
+  pastMedicalHistory String
+  medications     String[]
+  allergies       String[]
+  initialVitalSigns Json
+  initialEmotionalState EmotionalState @default(CALM)
+  
+  // Physiological model settings
+  physiologyModel Json // High-fidelity physiological parameters
+  complicationTriggers Json? // Conditions that trigger complications
+  naturalProgression Json? // How condition evolves without intervention
+  
+  // Scenario timeline events
+  scheduledEvents Json? // { virtualTime: "00:30", eventType: "lab_result", details: {} }
+  branchingPaths Json? // Different paths based on decisions
+  
+  // Validation metadata
+  validatedByExpertId String?
+  validatedByExpert User? @relation(fields: [validatedByExpertId], references: [id], onDelete: SetNull)
+  validationDate DateTime?
+  validationNotes String?
+  
+  // Metadata
+  version     Float @default(1.0)
+  isActive    Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String
+  creator     User   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  institutionId String?
+  institution Institution? @relation(fields: [institutionId], references: [id], onDelete: SetNull)
+  
+  // Relations
+  sessions    ScenarioSession[]
+  
+  @@map("medical_scenarios")
+}
+
+model ScenarioSession {
+  id          String   @id @default(uuid())
+  scenarioId  String
+  scenario    MedicalScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  studentId   String
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  supervisorId String?
+  supervisor  User?    @relation(fields: [supervisorId], references: [id], onDelete: SetNull)
+  
+  status      SessionStatus @default(ACTIVE)
+  assessmentType AssessmentType @default(FORMATIVE)
+  
+  // Time tracking - CORE FEATURE
+  startTime   DateTime @default(now()) // Real-world start time
+  currentVirtualTime DateTime // Current time in scenario timeline
+  lastRealTimeUpdate DateTime // Last real-time synchronization
+  timeFlowMode TimeFlowMode @default(REAL_TIME)
+  totalRealTimeElapsed Int @default(0) // Seconds in real-time
+  totalVirtualTimeElapsed Int @default(0) // Minutes in virtual time
+  timePressureEnabled Boolean @default(false)
+  
+  // Natural consequences tracking
+  complicationsEncountered String[]
+  mistakesMade Json? // Records of errors and their consequences
+  interventionsReceived Json? // Supervisor interventions
+  
+  // Current state
+  currentPatientState Json // High-fidelity physiological state
+  currentEmotionalState EmotionalState
+  completedSteps     String[]
+  activeMedications  Json?
+  latestVitalSigns   Json
+//   activeOrders       MedicalAction[] // Orders in progress
+  medicationOrders MedicationOrder[]
+  procedureOrders ProcedureOrder[]
+  labOrders       LabOrder[]
+  imagingOrders   ImagingOrder[]
+  examOrders      ExamOrder[]
+  pendingEvents      TimeEvent[] // Events requiring attention
+  
+  // Assessment - All competency areas with detailed breakdown
+  competencyScores Json // { diagnostic: { score: 0.8, feedback: "...", evidence: [...] }, ... }
+  overallScore     Float?
+  timeEfficiencyScore Float?
+  stressPerformanceScore Float? // Performance under time pressure
+  finalFeedback    String?
+  
+  // Multi-patient support for future ward simulations
+  parentSessionId String? // For multi-patient scenarios
+  parentSession   ScenarioSession? @relation("MultiPatientSessions", fields: [parentSessionId], references: [id])
+  childSessions   ScenarioSession[] @relation("MultiPatientSessions")
+  
+  // Relations
+  encounters  PatientEncounter[]
+  actions     MedicalAction[]
+  conversations LLMConversation[]
+  timeEvents  TimeEvent[]
+  interventions SupervisorIntervention[]
+  assessments SessionAssessment[]
+  
+  @@map("scenario_sessions")
+}
+
+model MedicalAction {
+  id          String   @id @default(uuid())
+  sessionId   String
+  session     ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  actionType  String   // examination, medication, procedure, diagnostic, order
+  actionDetails Json   // { procedure: "blood_draw", location: "left_arm", ... }
+  
+  // Time tracking
+  realTimeRequired Int? // Seconds required in real-time
+  virtualTimeRequired Int? // Minutes required in virtual time
+  realTimeStarted DateTime?
+  realTimeCompleted DateTime?
+  virtualTimeStarted DateTime?
+  virtualTimeCompleted DateTime?
+  
+  status      ActionStatus @default(PENDING)
+  priority    EventPriority @default(MEDIUM)
+  
+  // Natural consequences tracking
+  expectedOutcome Json? // What should happen if correct
+  actualOutcome   Json? // What actually happened
+  consequenceSeverity Int? // 1-10 scale of consequence impact
+  
+  // For orders that take virtual time
+  expectedCompletionVirtualTime DateTime?
+  canBeFastForwarded Boolean @default(true)
+  
+  // Assessment
+  performedCorrectly Boolean?
+  feedback    String?
+  timePenalty Int? // Virtual minutes penalty for delays
+  
+  @@map("medical_actions")
+}
+
+model TimeEvent {
+  id          String   @id @default(uuid())
+  sessionId   String
+  session     ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  triggeredByActionId String?
+  triggeredByAction MedicalAction? @relation(fields: [triggeredByActionId], references: [id], onDelete: SetNull)
+  
+  eventType   String   // lab_result_ready, medication_effect, patient_deterioration, scheduled_event
+  eventData   Json     // Detailed event information
+  virtualTimeScheduled DateTime
+  virtualTimeTriggered DateTime?
+  realTimeTriggered DateTime?
+  
+  // Natural consequences implementation
+  isComplication Boolean @default(false)
+  severity       EventPriority @default(MEDIUM)
+  requiresAttention Boolean @default(false)
+  wasMissed      Boolean @default(false)
+  missPenalty    Int?
+  
+  // Acknowledgment
+  acknowledgedByUserId String?
+  acknowledgedBy User? @relation(fields: [acknowledgedByUserId], references: [id], onDelete: SetNull)
+  acknowledgedAt DateTime?
+  
+  @@map("time_events")
+}
+
+model SupervisorIntervention {
+  id          String   @id @default(uuid())
+  sessionId   String
+  session     ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  supervisorId String
+  supervisor  User     @relation(fields: [supervisorId], references: [id], onDelete: Cascade)
+  
+  interventionType String // hint, correction, complication, guidance
+  message      String
+  contextData  Json? // Patient state at time of intervention
+  virtualTime  DateTime
+  
+  // Student response to intervention
+  studentAcknowledged Boolean @default(false)
+  studentResponse String?
+  interventionEffective Boolean? // Whether it helped student
+  
+  createdAt   DateTime @default(now())
+  
+  @@map("supervisor_interventions")
+}
+
+model PatientEncounter {
+  id          String   @id @default(uuid())
+  sessionId   String
+  session     ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  encounterType String // initial, followup, emergency, procedure
+  
+  // Time tracking
+  timestamp   DateTime @default(now())
+  virtualTimestamp DateTime
+  realTimeDuration Int
+  virtualTimeDuration Int
+  
+  // Clinical data with high fidelity
+  subjectiveFindings Json
+  objectiveFindings  Json
+  assessment        Json
+  plan              Json
+  emotionalContext  EmotionalState
+  
+  @@map("patient_encounters")
+}
+
+model LLMConversation {
+  id          String   @id @default(uuid())
+  sessionId   String
+  session     ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Open-ended natural language support
+  userMessage String
+  patientResponse String
+  messageContext Json
+  emotionalContext EmotionalState
+  conversationDepth Int @default(1) // How deep in conversation tree
+  
+  // Time tracking
+  timestamp   DateTime @default(now())
+  virtualTimestamp DateTime
+  realTimeSpent Int
+  
+  // Quality assessment
+  medicalAccuracy Float?
+  appropriateness Float?
+  emotionalAppropriateness Float?
+  
+  @@map("llm_conversations")
+}
+
+model AssessmentMetric {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  weight      Float
+  category    String // diagnostic, procedural, communication, professionalism, critical_thinking
+  difficultyLevel ScenarioDifficulty? // Metric specific to difficulty level
+  
+  @@map("assessment_metrics")
+}
+
+model SessionAssessment {
+  id          String   @id @default(uuid())
+  sessionId   String
+  session     ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  metricId    String
+  metric      AssessmentMetric @relation(fields: [metricId], references: [id], onDelete: Cascade)
+  assessedByUserId String?
+  assessedBy  User? @relation(fields: [assessedByUserId], references: [id], onDelete: SetNull)
+  
+  score       Float
+  feedback    String
+  evidence    Json
+  timeEfficiency Float?
+  stressPerformance Float? // Performance under time pressure
+  
+  assessmentType AssessmentType @default(FORMATIVE)
+  assessedAt   DateTime @default(now())
+  
+  @@unique([sessionId, metricId])
+  @@map("session_assessments")
+}
+
+model TimeUsageAnalytics {
+  id          String   @id @default(uuid())
+  sessionId   String
+  session     ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  timeUsageBreakdown Json
+  efficiencyMetrics Json
+  decisionTiming Json
+  stressImpactAnalysis Json // How time pressure affected performance
+  
+  analyzedAt  DateTime @default(now())
+  
+  @@map("time_usage_analytics")
+}
+
+// Support for multi-institutional scaling
+model InstitutionalConfig {
+  id          String   @id @default(uuid())
+  institutionId String
+  institution Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  
+  // Configuration
+  maxUsers    Int?
+  allowedDomains String[]
+  customAssessmentRubrics Json?
+  scenarioAccessLevel String @default("INSTITUTIONAL") // INSTITUTIONAL, SHARED, PUBLIC
+  
+  @@unique([institutionId])
+  @@map("institutional_configs")
+}
+
+// Content versioning for updates
+model ScenarioVersion {
+  id          String   @id @default(uuid())
+  scenarioId  String
+  scenario    MedicalScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  
+  version     Float
+  changes     Json
+  changeNotes String
+  validatedByExpertId String?
+  validatedByExpert User? @relation(fields: [validatedByExpertId], references: [id], onDelete: SetNull)
+  
+  createdAt   DateTime @default(now())
+  createdBy   String
+  creator     User   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  
+  @@unique([scenarioId, version])
+  @@map("scenario_versions")
+}
+// NEW MODELS FOR MEDICAL KNOWLEDGE BASE
+
+model Drug {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  genericName String
+  brandNames  String[]
+  
+  // Classification
+  drugClass   String
+  subClass    String?
+  category    String // prescription, otc, controlled
+  
+  // Dosage information
+  standardDosages Json // { adult: { min: 5, max: 10, unit: "mg" }, pediatric: {...} }
+  administrationRoutes String[] // oral, iv, im, subcutaneous, etc.
+  frequencyOptions String[] // QD, BID, TID, QID, PRN, etc.
+  
+  // Clinical information
+  indications   String[]
+  contraindications String[]
+  sideEffects   String[]
+  interactions  String[]
+  monitoringParameters String[] // what to monitor when administering
+  
+  // Time parameters
+  onsetOfAction String? // "5-10 minutes"
+  duration      String? // "4-6 hours"
+  halfLife      String?
+  
+  // Validation
+  fdaApproved   Boolean @default(true)
+  validatedByExpertId String?
+  validatedByExpert User? @relation(fields: [validatedByExpertId], references: [id], onDelete: SetNull)
+  
+  // Metadata
+  isActive      Boolean @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  medicationOrders MedicationOrder[]
+  
+  @@map("drugs")
+}
+
+model Procedure {
+  id          String   @id @default(uuid())
+  code        String?  // CPT code or institutional code
+  name        String   @unique
+  description String
+  category    String   // diagnostic, therapeutic, surgical, nursing
+  
+  // Procedure details
+  indications   String[]
+  contraindications String[]
+  requiredEquipment String[]
+  steps         Json // Step-by-step procedure guide
+  risks         String[]
+  complications String[]
+  
+  // Time requirements
+  estimatedRealTime Int // seconds
+  estimatedVirtualTime Int // minutes
+  requiresSupervision Boolean @default(false)
+  difficultyLevel ScenarioDifficulty
+  
+  // Validation
+  validatedByExpertId String?
+  validatedByExpert User? @relation(fields: [validatedByExpertId], references: [id], onDelete: SetNull)
+  
+  // Metadata
+  isActive      Boolean @default(true)
+  createdAt     DateTime @default(now())
+  
+  // Relations
+  procedureOrders ProcedureOrder[]
+  
+  @@map("procedures")
+}
+
+model LaboratoryTest {
+  id          String   @id @default(uuid())
+  code        String?  // LOINC code
+  name        String   @unique
+  description String
+  category    String   // hematology, chemistry, microbiology, etc.
+  
+  // Test information
+  specimenTypes String[] // blood, urine, CSF, etc.
+  collectionInstructions String
+  normalRanges Json // { ageRanges: [{minAge: 0, maxAge: 18, range: "X-Y"}] }
+  criticalValues Json // values that require immediate attention
+  interpretationGuide String
+  
+  // Time parameters
+  processingTimeVirtual Int // minutes until results available
+  statProcessingTimeVirtual Int? // minutes for STAT orders
+  requiresCollection Boolean @default(true)
+  
+  // Validation
+  validatedByExpertId String?
+  validatedByExpert User? @relation(fields: [validatedByExpertId], references: [id], onDelete: SetNull)
+  
+  // Metadata
+  isActive      Boolean @default(true)
+  createdAt     DateTime @default(now())
+  
+  // Relations
+  labOrders     LabOrder[]
+  
+  @@map("laboratory_tests")
+}
+
+model ImagingStudy {
+  id          String   @id @default(uuid())
+  code        String?  // CPT code
+  name        String   @unique
+  description String
+  modality    String   // X-ray, CT, MRI, Ultrasound, etc.
+  
+  // Study information
+  indications   String[]
+  contraindications String[]
+  preparationInstructions String
+  radiationExposure String? // for radiology studies
+  
+  // Time parameters
+  durationRealTime Int // minutes for actual procedure
+  durationVirtualTime Int // minutes until results available
+  statDurationVirtual Int? // minutes for STAT orders
+  
+  // Validation
+  validatedByExpertId String?
+  validatedByExpert User? @relation(fields: [validatedByExpertId], references: [id], onDelete: SetNull)
+  
+  // Metadata
+  isActive      Boolean @default(true)
+  createdAt     DateTime @default(now())
+  
+  // Relations
+  imagingOrders ImagingOrder[]
+  
+  @@map("imaging_studies")
+}
+
+model PhysicalExam {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String
+  system      String   // cardiovascular, respiratory, neurological, etc.
+  
+  // Exam details
+  technique    String   // how to perform the exam
+  normalFindings String
+  abnormalFindings Json // { finding: "crackles", indication: "pulmonary edema" }
+  requiredEquipment String[]
+  
+  // Time requirements
+  estimatedRealTime Int // seconds
+  estimatedVirtualTime Int // minutes
+  
+  // Validation
+  validatedByExpertId String?
+  validatedByExpert User? @relation(fields: [validatedByExpertId], references: [id], onDelete: SetNull)
+  
+  // Metadata
+  isActive      Boolean @default(true)
+  createdAt     DateTime @default(now())
+  
+  // Relations
+  examOrders    ExamOrder[]
+  
+  @@map("physical_exams")
+}
+
+// UPDATED ORDER MODELS (replacing generic MedicalAction)
+
+model MedicationOrder {
+  id          String   @id @default(uuid())
+  sessionId   String
+  session     ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  studentId   String
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  drugId      String
+  drug        Drug     @relation(fields: [drugId], references: [id], onDelete: Cascade)
+  
+  // Order details
+  dosage      String   // "5 mg"
+  route       String   // "IV", "PO", etc.
+  frequency   String   // "Q6H", "BID", etc.
+  duration    String?  // "7 days", "until discharge"
+  indication  String   // reason for ordering
+  
+  // Time tracking
+  orderTime   DateTime @default(now())
+  virtualOrderTime DateTime
+  expectedAdministrationTime DateTime?
+  actualAdministrationTime DateTime?
+  
+  // Status and outcomes
+  status      ActionStatus @default(PENDING)
+  administeredByUserId String? // nurse who administered
+  administeredBy User? @relation(fields: [administeredByUserId], references: [id], onDelete: SetNull)
+  response    Json? // patient's response to medication
+  
+  // Assessment
+  appropriatenessScore Float? // 0-1 score
+  timingScore    Float? // 0-1 score
+  documentationScore Float? // 0-1 score
+  
+  @@map("medication_orders")
+}
+
+model ProcedureOrder {
+  id          String   @id @default(uuid())
+  sessionId   String
+  session     ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  studentId   String
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  procedureId String
+  procedure   Procedure @relation(fields: [procedureId], references: [id], onDelete: Cascade)
+  
+  // Order details
+  indication  String
+  location    String? // "left arm", "chest", etc.
+  urgency     EventPriority @default(MEDIUM)
+  
+  // Time tracking
+  orderTime   DateTime @default(now())
+  virtualOrderTime DateTime
+  scheduledTime DateTime?
+  completionTime DateTime?
+  
+  // Status and outcomes
+  status      ActionStatus @default(PENDING)
+  performedByUserId String? // who performed the procedure
+  performedBy User? @relation(fields: [performedByUserId], references: [id], onDelete: SetNull)
+  findings    Json? // results of the procedure
+  complications String[] // any complications encountered
+  
+  // Assessment
+  techniqueScore Float? // 0-1 score
+  indicationScore Float? // 0-1 score
+  safetyScore   Float? // 0-1 score
+  
+  @@map("procedure_orders")
+}
+
+model LabOrder {
+  id          String   @id @default(uuid())
+  sessionId   String
+  session     ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  studentId   String
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  testId      String
+  test        LaboratoryTest @relation(fields: [testId], references: [id], onDelete: Cascade)
+  
+  // Order details
+  indication  String
+  urgency     EventPriority @default(MEDIUM)
+  statOrder   Boolean @default(false)
+  
+  // Time tracking
+  orderTime   DateTime @default(now())
+  virtualOrderTime DateTime
+  collectionTime DateTime?
+  resultTime  DateTime? // when results become available
+  
+  // Status and results
+  status      ActionStatus @default(PENDING)
+  collectedByUserId String? // who collected the specimen
+  collectedBy User? @relation(fields: [collectedByUserId], references: [id], onDelete: SetNull)
+  results     Json? // actual test results
+  isCritical  Boolean @default(false) // critical value flag
+  
+  // Assessment
+  appropriatenessScore Float? // 0-1 score
+  interpretationScore Float? // 0-1 score
+  timingScore    Float? // 0-1 score
+  
+  @@map("lab_orders")
+}
+
+model ImagingOrder {
+  id          String   @id @default(uuid())
+  sessionId   String
+  session     ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  studentId   String
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studyId     String
+  study       ImagingStudy @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  
+  // Order details
+  indication  String
+  bodyPart    String
+  urgency     EventPriority @default(MEDIUM)
+  statOrder   Boolean @default(false)
+  
+  // Time tracking
+  orderTime   DateTime @default(now())
+  virtualOrderTime DateTime
+  studyTime   DateTime? // when study performed
+  resultTime  DateTime? // when results available
+  
+  // Status and results
+  status      ActionStatus @default(PENDING)
+  performedByUserId String? // who performed the study
+  performedBy User? @relation(fields: [performedByUserId], references: [id], onDelete: SetNull)
+  findings    Json? // radiology report
+  isCritical  Boolean @default(false)
+  
+  // Assessment
+  appropriatenessScore Float? // 0-1 score
+  interpretationScore Float? // 0-1 score
+  
+  @@map("imaging_orders")
+}
+
+model ExamOrder {
+  id          String   @id @default(uuid())
+  sessionId   String
+  session     ScenarioSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  studentId   String
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  examId      String
+  exam        PhysicalExam @relation(fields: [examId], references: [id], onDelete: Cascade)
+  
+  // Order details
+  indication  String
+  bodyPart    String?
+  
+  // Time tracking
+  orderTime   DateTime @default(now())
+  virtualOrderTime DateTime
+  performedTime DateTime?
+  
+  // Status and findings
+  status      ActionStatus @default(PENDING)
+  findings    Json? // exam findings
+  normal      Boolean? // whether findings were normal
+  
+  // Assessment
+  techniqueScore Float? // 0-1 score
+  documentationScore Float? // 0-1 score
+  completenessScore Float? // 0-1 score
+  
+  @@map("exam_orders")
+}
+
+// NEW MODEL FOR ORDER SETS AND TEMPLATES
+model OrderSet {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  category    String   // "chest_pain", "sepsis", "stroke", etc.
+  difficulty  ScenarioDifficulty
+  
+  // Orders in this set
+  medications Json // { drugId: string, dosage: string, route: string, frequency: string }[]
+  procedures  String[] // procedureIds
+  labTests    String[] // testIds
+  imagingStudies String[] // studyIds
+  exams       String[] // examIds
+  
+  // Clinical context
+  indications String[]
+  contraindications String[]
+  
+  // Validation
+  validatedByExpertId String?
+  validatedByExpert User? @relation(fields: [validatedByExpertId], references: [id], onDelete: SetNull)
+  
+  // Metadata
+  isActive      Boolean @default(true)
+  createdAt     DateTime @default(now())
+  
+  @@map("order_sets")
+}
+
+// NEW MODEL FOR DRUG INTERACTIONS
+model DrugInteraction {
+  id          String   @id @default(uuid())
+  drug1Id     String
+  drug1       Drug     @relation(fields: [drug1Id], references: [id], onDelete: Cascade)
+  drug2Id     String
+  drug2       Drug     @relation(fields: [drug2Id], references: [id], onDelete: Cascade)
+  
+  interactionType String // "contraindicated", "major", "moderate", "minor"
+  description String
+  mechanism   String?
+  management  String?
+  
+  severity    EventPriority
+  evidenceLevel String? // "established", "probable", "possible"
+  
+  @@unique([drug1Id, drug2Id])
+  @@map("drug_interactions")
+}

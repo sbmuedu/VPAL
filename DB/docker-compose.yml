@@ -1,0 +1,96 @@
+# version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      # super-user credentials
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
+      # Keycloak DB (will be created automatically by Keycloak)
+      POSTGRES_DB: keycloak
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # create the second DB and all tables on first start-up
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # keycloak:
+  #   image: quay.io/keycloak/keycloak:latest
+  #   environment:
+  #     KC_DB: postgres
+  #     KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+  #     KC_DB_USERNAME: postgres
+  #     KC_DB_PASSWORD: postgres_password
+  #     KC_HOSTNAME: localhost
+  #     KC_HOSTNAME_PORT: 8080
+  #     KC_PROXY: edge
+  #     KC_BOOTSTRAP_ADMIN_USERNAME: admin
+  #     KC_BOOTSTRAP_ADMIN_PASSWORD: admin_password
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   networks:
+  #     - app-network
+  #   command: start-dev
+
+  # redis:
+  #   image: redis:7-alpine
+  #   restart: unless-stopped
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     - app-network
+
+  # notification-center:
+  #   build: ./notification-center
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_started
+  #   ports:
+  #     - "4000:4000"
+  #   environment:
+  #     # connect to the *second* database
+  #     PGHOST: postgres
+  #     PGUSER: postgres
+  #     PGPASSWORD: postgres_password
+  #     PGDATABASE: app_db
+  #     PGPORT: 5432
+
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: 6379
+
+  #     SMTP_HOST: smtp.gmail.com
+  #     SMTP_PORT: 587
+  #     SMTP_USERNAME: sbmuedu@gmail.com
+  #     SMTP_PASSWORD: uqay kjbc aajs iuxg # uqaykjbcaajsiuxg
+  #     SMTP_TLS: "yes"
+
+  #     SMSIR_API_KEY: YOUR-SMS-IR-API-KEY
+  #     SMSIR_LINE: YOUR-SMS-LINE
+
+  #     VAPID_PUBLIC_KEY: BC9qLZVCLF8unhDAhPQ1okhX1TRHFQAATgVYkkR-A1i1D2HJQbR_pSBQuUoBrt3docABW_U3oFTZofHbdml4qrw
+  #     VAPID_PRIVATE_KEY: eybGyGWe0qpB8NNQyh_Wo05tZk7NNY7lkLiUowkHbgo
+  #     VAPID_SUBJECT: mailto:sbmuedu@gmail.com
+  #   networks:
+  #     - app-network
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge

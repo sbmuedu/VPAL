@@ -1,0 +1,22 @@
+{
+  "name": "sharedtypes",
+  "version": "1.0.0",
+  "description": "Shared TypeScript types for Virtual Patient Platform",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "typescript": "^5.9.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3"
+  }
+}

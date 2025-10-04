@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: virtual_patient
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./prisma/init-scripts:/docker-entrypoint-initdb.d
+
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    command: >
+      sh -c "
+        ollama pull mistral &&
+        ollama pull llama3:8b &&
+        sleep 10 &&
+        ./ollama serve
+      "
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
+  ollama_data:
