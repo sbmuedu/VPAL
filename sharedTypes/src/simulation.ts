@@ -371,4 +371,4 @@ export interface TimeEvent {
   acknowledgedAt?: Date;
 }
 
-export { VitalSigns };
+export {type  VitalSigns };

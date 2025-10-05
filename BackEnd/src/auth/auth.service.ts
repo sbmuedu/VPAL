@@ -36,7 +36,7 @@ export class AuthService {
     if (user && await bcrypt.compare(password, user.password!)) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password: _, ...result } = user; // remove password part of user and others to reult field
-      return result;
+      return result as Omit<User, 'password'>;
     }
     //if user not found or password not matched thrown UnauthorizedException
     throw new UnauthorizedException('Invalid credentials');
@@ -77,13 +77,13 @@ export class AuthService {
         ...userData,
         email,
         password: hashedPassword,
-        institutionId: institution?.id,
+        institutionId: institution?.id ?? null,
       },
       include: { institution: true },
     });
 
     // Generate tokens
-    const tokens = await this.generateTokens(user.id, user.email, user.role);
+    const tokens = await this.generateTokens(user.id, user.email, user.role as UserRole);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userWithoutPassword } = user;
@@ -91,7 +91,7 @@ export class AuthService {
     return {
       user: userWithoutPassword,
       ...tokens,
-    };
+    } as LoginResponse;
   }
 
   /**
@@ -207,7 +207,7 @@ export class AuthService {
       where: { id: userId },
     });
 
-    if (!user || !(await bcrypt.compare(currentPassword, user.password))) {
+    if (!user || !bcrypt.compare(currentPassword, user.password ?? '')) {
       throw new UnauthorizedException('Current password is incorrect');
     }
 
