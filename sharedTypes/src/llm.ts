@@ -64,16 +64,21 @@ export interface PromptExample {
 }
 
 export interface LLMResponse {
-  rawResponse: string;
-  processedResponse: string;
-  emotionalState: EmotionalState;
-  confidence: number; // 0-1
-  vitalSignChanges: Partial<VitalSigns>;
-  triggeredEvents: string[];
-  educationalValue: number; // 0-1
-  medicalAccuracy: number; // 0-1
-  processingTime: number; // ms
-  tokensUsed: number;
+    rawResponse: string;
+    processedResponse: string;
+    emotionalState: EmotionalState;
+    confidence?: number;        // Make optional if not always provided
+    vitalSignChanges: Partial<VitalSigns>;
+    triggeredEvents: string[];
+    medicalAccuracy: number;
+    processingTime?: number;    // Make optional
+    tokensUsed?: number;        // Make optional if not always provided
+    educationalValue: number;
+    
+    accuracy?: number;          // Add this
+    thinkingTime?: number;      // Add this
+    appropriateness?: number;   // Add this
+    emotionalAppropriateness?: number; // Add this
 }
 
 export interface ConversationAnalysis {

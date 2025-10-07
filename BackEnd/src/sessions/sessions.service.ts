@@ -20,6 +20,7 @@ import {
   ActionStatus,
   EventPriority,
   UserRole,
+  Prisma,
 } from '@prisma/client';
 
 // Import DTOs
@@ -33,6 +34,7 @@ import {
   AddSupervisorDto,
   CreateInterventionDto,
 } from './dto/sessions.dto';
+import { devNull } from 'os';
 
 /**
  * SESSION WITH SCENARIO TYPE
@@ -148,7 +150,7 @@ export class SessionsService {
       data: {
         scenarioId: startSessionDto.scenarioId,
         studentId: userId,
-        assessmentType: startSessionDto.assessmentType,
+        assessmentType: startSessionDto.assessmentType ?? AssessmentType.FORMATIVE, //reza
         currentVirtualTime: new Date(),
         lastRealTimeUpdate: new Date(),
         timeFlowMode: TimeFlowMode.REAL_TIME,
@@ -161,16 +163,16 @@ export class SessionsService {
         // Initialize other required fields
         totalRealTimeElapsed: 0,
         totalVirtualTimeElapsed: 0,
-        mistakesMade: null,
-        interventionsReceived: null,
-        activeMedications: null,
-        competencyScores: null,
+        mistakesMade: Prisma.JsonNull, //reza
+        interventionsReceived: Prisma.JsonNull, //reza
+        activeMedications: Prisma.JsonNull, //reza
+        competencyScores: Prisma.JsonNull, //reza,
         overallScore: null,
         timeEfficiencyScore: null,
         stressPerformanceScore: null,
         finalFeedback: null,
         parentSessionId: null,
-        userId: null, // Add this if your schema requires it
+        // userId: Prisma.JsonNull, //reza null, // Add this if your schema requires it
       },
       include: {
         scenario: {
@@ -299,7 +301,7 @@ export class SessionsService {
           },
         },
         actions: {
-          orderBy: { createdAt: 'desc' },
+          orderBy: { realTimeStarted: 'desc' },
           take: 20,
           include: {
             initiatedBy: {
@@ -420,7 +422,7 @@ export class SessionsService {
         actualOutcome: JSON.parse(JSON.stringify(actionResult.result)), // Ensure JSON
         performedCorrectly: actionResult.success,
         feedback: actionResult.feedback,
-        consequenceSeverity: actionResult.consequenceSeverity,
+        consequenceSeverity: actionResult.consequenceSeverity ?? null,
       },
     });
 
@@ -573,7 +575,7 @@ export class SessionsService {
       medicalHistory: session.scenario.pastMedicalHistory,
       emotionalState: session.currentEmotionalState,
       chiefComplaint: session.scenario.chiefComplaint,
-      currentSymptoms: session.currentPatientState?.symptoms || [],
+      currentSymptoms: (session.currentPatientState as any).symptoms || [], //reza
       context: patientQuestionDto.context,
       conversationHistory: await this.getRecentConversations(sessionId, 5),
     };
@@ -590,31 +592,31 @@ export class SessionsService {
         sessionId,
         userId,
         userMessage: patientQuestionDto.question,
-        patientResponse: patientResponse.response,
+        patientResponse: patientResponse.processedResponse,
         messageContext: patientQuestionDto.context,
         emotionalContext: session.currentEmotionalState,
         virtualTimestamp: session.currentVirtualTime,
         realTimeSpent: patientResponse.thinkingTime || 5,
-        medicalAccuracy: patientResponse.accuracy,
-        appropriateness: patientResponse.appropriateness,
-        emotionalAppropriateness: patientResponse.emotionalAppropriateness,
+        medicalAccuracy: patientResponse.accuracy ?? null,
+        appropriateness: patientResponse.appropriateness ?? null,
+        emotionalAppropriateness: patientResponse.emotionalAppropriateness ?? null,
         conversationDepth: await this.calculateConversationDepth(sessionId),
       },
     });
 
     // Update emotional state based on conversation if needed
-    if (patientResponse.emotionalImpact) {
-      await this.updateEmotionalState(sessionId, patientResponse.emotionalImpact);
+    if (patientResponse.emotionalAppropriateness) {
+      await this.updateEmotionalState(sessionId, patientResponse.emotionalState);
     }
 
     this.logger.log(`Patient question processed: ${conversation.id}`);
 
     return {
       question: patientQuestionDto.question,
-      response: patientResponse.response,
+      response: patientResponse.processedResponse,
       conversationId: conversation.id,
       emotionalContext: session.currentEmotionalState,
-      medicalAccuracy: patientResponse.accuracy,
+      medicalAccuracy: patientResponse.medicalAccuracy,
     };
   }
 
@@ -656,7 +658,7 @@ export class SessionsService {
       data: {
         status: SessionStatus.COMPLETED,
         endTime: new Date(),
-        finalFeedback: endSessionDto.finalFeedback,
+        finalFeedback: endSessionDto.finalFeedback ?? null,
         timeFlowMode: TimeFlowMode.PAUSED, // Stop time flow
       },
       include: {
@@ -972,8 +974,8 @@ export class SessionsService {
         failure: 'Consider alternative approach or additional assessment'
       }
     };
-
-    const feedback = feedbackMap[actionType] || feedbackMap.default;
+    type aType = keyof typeof feedbackMap;  // create a type for all keys of feedbackMap array
+    const feedback = feedbackMap[actionType as aType] || feedbackMap.default;
     return success ? feedback.success : feedback.failure;
   }
 
