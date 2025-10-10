@@ -28,24 +28,21 @@ export class InterventionEvaluationDto {
   @IsString()
   studentResponse?: string;
 
-  // @IsEnum(InterventionType)
-  // type: InterventionType = InterventionType.PREVENTIVE;// "PREVENTIVE"; reza
+  @IsObject()
+  details!: Record<string, any>;
 
-  // @IsObject()
-  // details!: Record<string, any>;
+  @IsString()
+  timing!: string; // virtual timestamp
 
-  // @IsString()
-  // timing!: string; // virtual timestamp
+  @IsOptional()
+  @IsObject()
+  patientState?: Record<string, any>;
 
-  // @IsOptional()
-  // @IsObject()
-  // patientState?: Record<string, any>;
+  @IsOptional()
+  @IsObject()
+  clinicalContext?: Record<string, any>;
 
-  // @IsOptional()
-  // @IsObject()
-  // clinicalContext?: Record<string, any>;
-
-  // @IsOptional()
-  // @IsString()
-  // rationale?: string;
+  @IsOptional()
+  @IsString()
+  rationale?: string;
 }

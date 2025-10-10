@@ -52,8 +52,11 @@ export class ScenariosService {
       data: {
         ...createScenarioDto,
         createdBy: userId,
+        initialVitalSigns: createScenarioDto.initialVitalSigns as any, // Cast to any for Json
+        physiologyModel: createScenarioDto.physiologyModel as any, // Cast to any for Json
         // Set default values if not provided
-        competencyWeights: createScenarioDto.competencyWeights as any, // Cast to any for Json
+        competencyWeights: {'a':'A'} , //createScenarioDto.competencyWeights as any, // Cast to any for Json
+        difficulty:  ScenarioDifficulty.INTERMEDIATE as ScenarioDifficulty, // Default difficulty
         // timeAccelerationRate: createScenarioDto.timeAccelerationRate || 60,
         // requiresTimePressure: createScenarioDto.requiresTimePressure || false,
         // version: 1.0,
@@ -67,13 +70,13 @@ export class ScenariosService {
             lastName: true,
             email: true,
             role: true,
+            
           },
         },
         institution: true,
       },
     });
-
-    return scenario; // as MedicalScenario;
+    return scenario as MedicalScenario;
   }
 
   /**

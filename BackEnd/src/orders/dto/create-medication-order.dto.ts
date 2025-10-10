@@ -13,7 +13,7 @@ import {
    MedicationPriority, 
   AdministrationRoute, 
   Frequency 
-} from '@BackEnd/sharedTypes';
+} from '@BackEnd/sharedTypes'; // Ensure 'Frequency' is exported from this module or replace it with the correct type.
 
 export class MedicationDosageDto {
   @IsNumber()
