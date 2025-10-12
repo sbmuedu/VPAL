@@ -13,6 +13,7 @@ import {
   ScenarioDifficulty,
   CompetencyWeights
 } from 'sharedtypes/dist';
+import { Prisma } from '@prisma/client';
 
 /**
  * Scenarios Service
@@ -55,7 +56,7 @@ export class ScenariosService {
         initialVitalSigns: createScenarioDto.initialVitalSigns as any, // Cast to any for Json
         physiologyModel: createScenarioDto.physiologyModel as any, // Cast to any for Json
         // Set default values if not provided
-        competencyWeights: {'a':'A'} , //createScenarioDto.competencyWeights as any, // Cast to any for Json
+        competencyWeights: createScenarioDto.competencyWeights as unknown as Prisma.JsonValue, // Cast to any for Json
         difficulty:  ScenarioDifficulty.INTERMEDIATE as ScenarioDifficulty, // Default difficulty
         // timeAccelerationRate: createScenarioDto.timeAccelerationRate || 60,
         // requiresTimePressure: createScenarioDto.requiresTimePressure || false,
