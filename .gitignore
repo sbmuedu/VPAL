@@ -2,6 +2,7 @@
 Backend/node_modules/
 Frontend/node_modules/
 sharedTypes/node_modules/
+z.ai/node_modules/
 
 Backend/dist/
 Frontend/dist/
