@@ -13,7 +13,7 @@ import {
   ScenarioDifficulty,
   CompetencyWeights
 } from 'sharedtypes/dist';
-
+import { Prisma } from '@prisma/client';
 /**
  * Scenarios Service
  * Handles medical scenario management including CRUD, validation, and access control
@@ -49,11 +49,16 @@ export class ScenariosService {
     this.validateCompetencyWeights(createScenarioDto.competencyWeights);
 
     const scenario = await this.prisma.medicalScenario.create({
+      
       data: {
         ...createScenarioDto,
         createdBy: userId,
         // Set default values if not provided
-        competencyWeights: createScenarioDto.competencyWeights as any, // Cast to any for Json
+        competencyWeights: createScenarioDto.competencyWeights 
+      ? createScenarioDto.competencyWeights as unknown as Prisma.InputJsonValue
+      : Prisma.JsonNull,
+
+        // Prisma.JsonNull, // createScenarioDto.competencyWeights as any, // Cast to any for Json
         // timeAccelerationRate: createScenarioDto.timeAccelerationRate || 60,
         // requiresTimePressure: createScenarioDto.requiresTimePressure || false,
         // version: 1.0,
