@@ -75,7 +75,7 @@ export class MedicalController {
         details: evaluationDto.details,
         timing: new Date(evaluationDto.timing),
       },
-      evaluationDto.patientState,
+      // evaluationDto.patientState,
     );
   }
 
@@ -92,7 +92,7 @@ export class MedicalController {
       predictionDto.drugId,
       predictionDto.patientState,
       predictionDto.dosage,
-      predictionDto.route,
+      // predictionDto.route,
     );
   }
 
@@ -170,7 +170,7 @@ export class MedicalController {
       sessionId,
       complicationData.type,
       complicationData.severity,
-      complicationData.timing ? new Date(complicationData.timing) : undefined,
+      // complicationData.timing ? new Date(complicationData.timing) : undefined,
     );
   }
   /**

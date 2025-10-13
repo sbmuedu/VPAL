@@ -14,6 +14,7 @@ import {
   CompetencyWeights
 } from 'sharedtypes/dist';
 import { Prisma } from '@prisma/client';
+
 /**
  * Scenarios Service
  * Handles medical scenario management including CRUD, validation, and access control
@@ -53,6 +54,8 @@ export class ScenariosService {
       data: {
         ...createScenarioDto,
         createdBy: userId,
+        initialVitalSigns: createScenarioDto.initialVitalSigns as any, // Cast to any for Json
+        physiologyModel: createScenarioDto.physiologyModel as any, // Cast to any for Json
         // Set default values if not provided
         competencyWeights: createScenarioDto.competencyWeights 
       ? createScenarioDto.competencyWeights as unknown as Prisma.InputJsonValue
@@ -72,13 +75,13 @@ export class ScenariosService {
             lastName: true,
             email: true,
             role: true,
+            
           },
         },
         institution: true,
       },
     });
-
-    return scenario; // as MedicalScenario;
+    return scenario as MedicalScenario;
   }
 
   /**

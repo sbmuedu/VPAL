@@ -282,6 +282,7 @@ export class MedicalService {
         indication: orderData.indication,
         virtualOrderTime: new Date(),
         status: 'PENDING',
+        prescribedBy: orderData.prescribedBy, // Add the prescribedBy field
       },
     });
   }

@@ -20,6 +20,7 @@ import {
   LabOrder,
   ProcedureOrder
 } from 'sharedtypes/dist';
+import { Drug} from '@BackEnd/sharedTypes';
 
 @Injectable()
 export class OrdersService {
@@ -60,24 +61,37 @@ export class OrdersService {
       );
     }
 
-    const order = await this.prisma.medicationOrder.create({
+    const order = await this.prisma.medicationOrder.create(
+      {
       data: {
         sessionId,
         drugId: createOrderDto.drugId,
-        prescribedById: userId,
+        prescribedBy: userId,
         dosage: createOrderDto.dosage.toString(),
         frequency: createOrderDto.frequency,
         route: createOrderDto.route,
         duration: createOrderDto.duration,
-        instructions: createOrderDto.instructions,
-        priority: createOrderDto.priority,
+        // instructions: createOrderDto.instructions,
+        // priority: createOrderDto.priority,
         status: 'PENDING', // OrderStatus.PENDING,
-        scheduledTime: createOrderDto.scheduledTime,
-        virtualTimeScheduled: session.currentVirtualTime,
+        scheduledTime: createOrderDto.scheduledTime ?? null,
+        // virtualTimeScheduled: session.currentVirtualTime,
+        studentId: session.studentId,
+        orderTime: new Date(),
+        drug:  {
+          id: drug.id,
+          name: drug.name,
+          routes: drug,
+          interactions: drug.interactions,
+          sideEffects: drug.sideEffects,
+          contraindications: drug.contraindications,
+          createdAt: drug.createdAt,
+          updatedAt: drug.updatedAt,
+        } as unknown as Drug,
       },
       include: {
         drug: true,
-        prescribedBy: {
+        student: {
           select: {
             id: true,
             firstName: true,
@@ -132,16 +146,19 @@ export class OrdersService {
       data: {
         sessionId,
         testId: createOrderDto.testId,
-        orderedById: userId,
-        priority: createOrderDto.priority,
+        studentId: userId,
+        // orderedById: userId,
+        // priority: createOrderDto.priority,
         status: OrderStatus.PENDING,
-        notes: createOrderDto.notes,
-        virtualTimeOrdered: session.currentVirtualTime,
-        expectedTurnaroundTime: test.typicalTurnaroundTime,
+        // notes: createOrderDto.notes,
+        // virtualTimeOrdered: session.currentVirtualTime,
+        expectedTurnaroundTime: test.processingTimeVirtual, //.typicalTurnaroundTime,
+        indication: createOrderDto.indication || 'General', // Provide a default or use from DTO
+        virtualOrderTime: session.currentVirtualTime || new Date(), // Use session time or current time
       },
       include: {
         test: true,
-        orderedBy: {
+        student: {
           select: {
             id: true,
             firstName: true,
